@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light}body{margin:0}</style>
+<title>Lecture de notes</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
+<style>
+/* Layout: one column tool. Controls on top, the staff as the main object, answer keys under it, stats last. */
+:root {
+  --bg: #eef1f5;
+  --panel: #ffffff;
+  --ink: #1a2333;
+  --muted: #5d6879;
+  --line: #d3d9e2;
+  --accent: #0d6e7a;
+  --accent-ink: #ffffff;
+  --good: #1c8a4e;
+  --good-bg: #dff3e7;
+  --bad: #c23a3a;
+  --bad-bg: #f9e1e1;
+  --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
+    --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
+  --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
+  padding-block: 24px 40px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+main { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
+h1 { font-family: var(--font-display); font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
+.sub { color: var(--muted); margin: 4px 0 0; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.chip {
+  border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 14px; font-weight: 500;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.opts { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+.opts label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.opts input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
+.stage { padding: 8px 8px 4px; }
+.stage svg { display: block; width: 100%; height: auto; max-height: 340px; }
+.staff-line { stroke: var(--ink); stroke-width: 1.4; }
+.ledger { stroke: var(--ink); stroke-width: 1.6; }
+.clef { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
+.clef-fill { fill: var(--ink); stroke: none; }
+.note { fill: var(--ink); }
+.stem { stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; }
+.note-label { font-family: var(--font-display); font-weight: 700; font-size: 20px; text-anchor: middle; }
+.stage.good .note, .stage.good .stem { fill: var(--good); stroke: var(--good); }
+.stage.good .stem { fill: none; }
+.stage.bad .note { fill: var(--bad); }
+.stage.bad .stem { stroke: var(--bad); }
+.stage.good .note-label { fill: var(--good); }
+.stage.bad .note-label { fill: var(--bad); }
+.feedback {
+  min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--line);
+  color: var(--muted);
+}
+.feedback.good { color: var(--good); background: var(--good-bg); }
+.feedback.bad { color: var(--bad); background: var(--bad-bg); }
+.feedback strong { font-family: var(--font-display); font-size: 17px; }
+.next { border: none; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 8px 16px; font-weight: 600; white-space: nowrap; }
+.keys { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.key {
+  position: relative; border: 1.5px solid var(--line); background: var(--panel); border-radius: 10px; padding: 16px 0 14px;
+  font-family: var(--font-display); font-weight: 700; font-size: 18px; text-align: center;
+  transition: background .12s, border-color .12s, transform .08s;
+}
+.key:hover:not(:disabled) { border-color: var(--accent); }
+.key:active:not(:disabled) { transform: translateY(1px); }
+.key small { position: absolute; top: 4px; left: 0; right: 0; font-family: var(--font-body); font-weight: 500; font-size: 10px; color: var(--muted); }
+.key.good { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.key.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.key:disabled { cursor: default; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 8px; }
+.stat { text-align: center; }
+.stat b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
+.stat span { font-size: 12px; color: var(--muted); }
+.foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
+.link { background: none; border: none; padding: 4px 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
+@media (max-width: 420px) {
+  .key { font-size: 15px; padding: 16px 0 12px; }
+  .keys { gap: 5px; }
+  h1 { font-size: 24px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+</head>
+<body>
+<main>
+  <header>
+    <h1>Lecture de notes</h1>
+    <p class="sub">Une note s'affiche sur la portée. Nomme-la.</p>
+  </header>
+
+  <section class="group" aria-labelledby="l-clefs">
+    <div class="label" id="l-clefs">Clés (une ou plusieurs)</div>
+    <div class="chips" id="clefs"></div>
+  </section>
+
+  <section class="group">
+    <div class="opts">
+      <label for="ledger"><input type="checkbox" id="ledger"> Lignes supplémentaires</label>
+      <label for="letters"><input type="checkbox" id="letters"> Notation C D E F G A B</label>
+      <label for="sound"><input type="checkbox" id="sound"> Jouer la note</label>
+    </div>
+  </section>
+
+  <section class="card" aria-live="polite">
+    <div class="stage" id="stage"><svg id="staff" viewBox="0 0 340 230" role="img" aria-label="Portée"></svg></div>
+    <div class="feedback" id="feedback"><span>Choisis le nom de la note.</span></div>
+  </section>
+
+  <section class="keys" id="keys" aria-label="Noms des notes"></section>
+
+  <section class="card stats" aria-label="Score">
+    <div class="stat"><b id="s-score">0/0</b><span>Réussies</span></div>
+    <div class="stat"><b id="s-acc">–</b><span>Précision</span></div>
+    <div class="stat"><b id="s-streak">0</b><span>Série</span></div>
+    <div class="stat"><b id="s-best">0</b><span>Meilleure série</span></div>
+  </section>
+
+  <div class="foot">
+    <span>Clavier : touches 1 à 7, ou les lettres c d e f g a b. Entrée pour passer à la suite.</span>
+    <button class="link" id="reset" type="button">Remettre à zéro</button>
+  </div>
+</main>
+
+<script>
+(function () {
+  var NAMES_FR = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
+  var NAMES_EN = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+  var SEMI = [0, 2, 4, 5, 7, 9, 11];
+  // bottom: diatonic index (C0 = 0) of the note on the bottom line. Ref: staff position of the clef's anchor line.
+  var CLEFS = {
+    sol: { label: 'Sol', name: 'Clé de sol', bottom: 30 },
+    fa:  { label: 'Fa',  name: 'Clé de fa', bottom: 18 },
+    ut3: { label: 'Ut 3 (alto)',   name: 'Clé d\'ut 3e ligne', bottom: 24 },
+    ut4: { label: 'Ut 4 (ténor)',  name: 'Clé d\'ut 4e ligne', bottom: 22 }
+  };
+  var ORDER = ['sol', 'fa', 'ut3', 'ut4'];
+  var BASE_Y = 150, HALF = 7, NOTE_X = 235, STAFF_X1 = 14, STAFF_X2 = 326, CLEF_X = 30;
+
+  var st = { clefs: ['sol'], ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
+  try {
+    var saved = JSON.parse(localStorage.getItem('lecture-notes') || 'null');
+    if (saved) {
+      if (Array.isArray(saved.clefs) && saved.clefs.length) st.clefs = saved.clefs.filter(function (c) { return CLEFS[c]; });
+      if (!st.clefs.length) st.clefs = ['sol'];
+      st.ledger = !!saved.ledger; st.letters = !!saved.letters; st.sound = !!saved.sound;
+      st.best = +saved.best || 0;
+    }
+  } catch (e) {}
+  function save() {
+    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
+  }
+
+  var $ = function (id) { return document.getElementById(id); };
+  var staff = $('staff'), stage = $('stage'), fb = $('feedback'), keysEl = $('keys');
+  var cur = null, locked = false, timer = null, last = null, audio = null;
+
+  function yOf(p) { return BASE_Y - p * HALF; }
+
+  function clefSvg(id) {
+    var x = CLEF_X, y;
+    if (id === 'sol') {
+      y = yOf(2);
+      return '<g transform="translate(' + x + ' ' + y + ')"><path class="clef" d="M16 -36 C19 -50 30 -52 29 -39 C28 -26 10 -16 4 -3 C-3 12 6 24 17 21 C27 18 26 3 14 1 C6 0 4 11 11 13 M16 -36 L12 35 C11 46 -2 47 -1 39"/></g>';
+    }
+    if (id === 'fa') {
+      y = yOf(6);
+      return '<g transform="translate(' + x + ' ' + y + ')"><path class="clef" d="M7 -2 C8 -13 26 -14 31 -2 C34 12 20 32 2 43"/><circle class="clef-fill" cx="7" cy="0" r="5.2"/><circle class="clef-fill" cx="40" cy="-7" r="2.8"/><circle class="clef-fill" cx="40" cy="7" r="2.8"/></g>';
+    }
+    y = yOf(id === 'ut3' ? 4 : 6);
+    return '<g transform="translate(' + x + ' ' + y + ')"><rect class="clef-fill" x="0" y="-28" width="6" height="56"/><rect class="clef-fill" x="10" y="-28" width="2.2" height="56"/>' +
+      '<path class="clef" d="M15 -28 C32 -28 33 -5 17 -2 M15 28 C32 28 33 5 17 2" stroke-width="3"/></g>';
+  }
+
+  function render(reveal) {
+    var clef = CLEFS[cur.clef], html = '';
+    for (var i = 0; i < 5; i++) html += '<line class="staff-line" x1="' + STAFF_X1 + '" x2="' + STAFF_X2 + '" y1="' + yOf(i * 2) + '" y2="' + yOf(i * 2) + '"/>';
+    html += clefSvg(cur.clef);
+    var p = cur.p, y = yOf(p);
+    // ledger lines
+    if (p <= -2) for (var q = -2; q >= p; q -= 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(q) + '" y2="' + yOf(q) + '"/>';
+    if (p >= 10) for (var r = 10; r <= p; r += 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(r) + '" y2="' + yOf(r) + '"/>';
+    var up = p < 4;
+    var sx = up ? NOTE_X + 8.6 : NOTE_X - 8.6;
+    var sy2 = up ? y - 48 : y + 48;
+    html += '<line class="stem" x1="' + sx + '" x2="' + sx + '" y1="' + y + '" y2="' + sy2 + '"/>';
+    html += '<ellipse class="note" cx="' + NOTE_X + '" cy="' + y + '" rx="9.6" ry="6.8" transform="rotate(-20 ' + NOTE_X + ' ' + y + ')"/>';
+    if (reveal) {
+      var ly = up ? Math.min(y - 60, yOf(9)) : Math.max(y + 72, BASE_Y + 20);
+      html += '<text class="note-label" x="' + (NOTE_X + (up ? 44 : -44)) + '" y="' + (y + 7) + '">' + names()[cur.step] + '</text>';
+    }
+    staff.innerHTML = html;
+    staff.setAttribute('aria-label', 'Portée en ' + clef.name.toLowerCase() + ', une note à identifier');
+  }
+
+  function names() { return st.letters ? NAMES_EN : NAMES_FR; }
+
+  function buildKeys() {
+    keysEl.innerHTML = '';
+    names().forEach(function (n, i) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'key'; b.dataset.step = i;
+      b.innerHTML = '<small>' + (i + 1) + '</small>' + n;
+      b.addEventListener('click', function () { answer(i); });
+      keysEl.appendChild(b);
+    });
+  }
+
+  function buildChips() {
+    var box = $('clefs'); box.innerHTML = '';
+    ORDER.forEach(function (id) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = CLEFS[id].label;
+      b.setAttribute('aria-pressed', st.clefs.indexOf(id) >= 0);
+      b.addEventListener('click', function () {
+        var i = st.clefs.indexOf(id);
+        if (i >= 0) { if (st.clefs.length > 1) st.clefs.splice(i, 1); }
+        else st.clefs.push(id);
+        buildChips(); save(); next();
+      });
+      box.appendChild(b);
+    });
+  }
+
+  function next() {
+    clearTimeout(timer);
+    var range = st.ledger ? [-4, 12] : [-1, 9], c, p, tries = 0;
+    do {
+      c = st.clefs[Math.floor(Math.random() * st.clefs.length)];
+      p = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+      tries++;
+    } while (last && last.clef === c && last.p === p && tries < 20);
+    var d = CLEFS[c].bottom + p;
+    cur = { clef: c, p: p, d: d, step: ((d % 7) + 7) % 7 };
+    last = { clef: c, p: p };
+    locked = false;
+    stage.className = 'stage';
+    fb.className = 'feedback';
+    fb.innerHTML = '<span>Choisis le nom de la note.</span>';
+    Array.prototype.forEach.call(keysEl.children, function (k) { k.className = 'key'; k.disabled = false; });
+    render(false);
+  }
+
+  function play(d) {
+    try {
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      var midi = 12 * (Math.floor(d / 7) + 1) + SEMI[((d % 7) + 7) % 7];
+      var f = 440 * Math.pow(2, (midi - 69) / 12);
+      var o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
+      o.type = 'triangle'; o.frequency.value = f;
+      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.28, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
+      o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + 1.15);
+    } catch (e) {}
+  }
+
+  function answer(i) {
+    if (locked) return;
+    locked = true;
+    var ok = i === cur.step;
+    st.total++;
+    if (ok) { st.correct++; st.streak++; if (st.streak > st.best) { st.best = st.streak; save(); } }
+    else st.streak = 0;
+    Array.prototype.forEach.call(keysEl.children, function (k) {
+      k.disabled = true;
+      if (+k.dataset.step === cur.step) k.className = 'key good';
+      else if (+k.dataset.step === i) k.className = 'key bad';
+    });
+    stage.className = 'stage ' + (ok ? 'good' : 'bad');
+    render(true);
+    if (st.sound) play(cur.d);
+    if (ok) {
+      fb.className = 'feedback good';
+      fb.innerHTML = '<strong>Juste : ' + names()[cur.step] + '</strong>';
+      timer = setTimeout(next, 900);
+    } else {
+      fb.className = 'feedback bad';
+      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '.</strong> Tu avais répondu ' + names()[i] + '.</span><button class="next" type="button" id="nextBtn">Suivant</button>';
+      var nb = $('nextBtn'); nb.addEventListener('click', next); nb.focus();
+    }
+    stats();
+  }
+
+  function stats() {
+    $('s-score').textContent = st.correct + '/' + st.total;
+    $('s-acc').textContent = st.total ? Math.round(100 * st.correct / st.total) + ' %' : '–';
+    $('s-streak').textContent = st.streak;
+    $('s-best').textContent = st.best;
+  }
+
+  document.addEventListener('keydown', function (e) {
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Enter' && locked && e.target.tagName !== 'BUTTON') { next(); return; }
+    var n = parseInt(e.key, 10), idx = -1;
+    if (n >= 1 && n <= 7) idx = n - 1;
+    else { idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase()); }
+    if (idx >= 0 && !locked && e.target.tagName !== 'INPUT') answer(idx);
+  });
+
+  $('ledger').checked = st.ledger; $('letters').checked = st.letters; $('sound').checked = st.sound;
+  $('ledger').addEventListener('change', function (e) { st.ledger = e.target.checked; save(); next(); });
+  $('letters').addEventListener('change', function (e) { st.letters = e.target.checked; save(); buildKeys(); if (locked) { var c = cur; next(); } else next(); });
+  $('sound').addEventListener('change', function (e) { st.sound = e.target.checked; save(); if (st.sound) play(cur.d); });
+  $('reset').addEventListener('click', function () { st.correct = st.total = st.streak = 0; st.best = 0; save(); stats(); next(); });
+
+  buildChips(); buildKeys(); stats(); next();
+})();
+</script>
+</body>
+</html>
