@@ -27,6 +27,8 @@
   --good-bg: #dff3e7;
   --bad: #c23a3a;
   --bad-bg: #f9e1e1;
+  --warn: #a86a00;
+  --warn-bg: #fbeccc;
   --key: #fbfcfe;
   --keyline: #8b96a8;
   --blackkey: #1a2333;
@@ -37,14 +39,14 @@
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
-    --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+    --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22; --warn: #e6b450; --warn-bg: #3a2f14;
     --key: #e6ebf3; --keyline: #0b0f15; --blackkey: #0b0f15; --blackline: #566074;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
-  --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+  --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22; --warn: #e6b450; --warn-bg: #3a2f14;
   --key: #e6ebf3; --keyline: #0b0f15; --blackkey: #0b0f15; --blackline: #566074;
   color-scheme: dark;
 }
@@ -86,6 +88,10 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .feedback.good { color: var(--good); background: var(--good-bg); }
 .feedback.bad { color: var(--bad); background: var(--bad-bg); }
 .feedback strong { font-family: var(--font-display); font-size: 17px; }
+.feedback small { display: block; font-size: 13px; font-weight: 400; margin-top: 2px; }
+.btns { display: flex; gap: 8px; flex: none; }
+.skip { border: 1.5px solid var(--line); background: transparent; border-radius: 10px; padding: 9px 14px; font-weight: 500; color: var(--ink); white-space: nowrap; }
+.next:disabled { opacity: .4; cursor: default; }
 .next { border: none; background: var(--accent); color: var(--accent-ink); border-radius: 10px; padding: 10px 18px; font-weight: 600; white-space: nowrap; }
 
 /* staff drawing */
@@ -100,7 +106,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .bad .note { fill: var(--bad); } .bad .stem { stroke: var(--bad); } .bad .note-label { fill: var(--bad); }
 
 /* answer row */
-.keys { flex: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.keys { flex: none; display: flex; flex-direction: column; gap: 6px; }
+.namerow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.modrow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.mod { height: 42px; border: 1.5px solid var(--line); background: var(--panel); border-radius: 10px; font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1; transition: background .12s, border-color .12s, color .12s; }
+.mod[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.acc { fill: none; stroke: var(--ink); stroke-linecap: round; stroke-linejoin: round; }
 .key {
   position: relative; height: clamp(56px, 11dvh, 76px); border: 1.5px solid var(--line); background: var(--panel); border-radius: 12px;
   font-family: var(--font-display); font-weight: 700; font-size: 18px; text-align: center; padding: 8px 0 0;
@@ -129,6 +140,12 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .wk:disabled { cursor: default; }
 .bk { position: absolute; top: 0; height: 60%; width: 8.6%; transform: translateX(-50%); background: var(--blackkey); border: 1.5px solid var(--blackline); border-radius: 0 0 6px 6px; z-index: 2; }
 @media (max-width: 380px) { .wk { font-size: 14px; } }
+.wk.sel { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+.bk.sel { background: var(--accent); border-color: var(--ink); box-shadow: 0 0 0 2px var(--panel); }
+button.bk { padding: 0; cursor: pointer; }
+button.bk:active:not(:disabled) { background: var(--accent); }
+.bk.good { background: var(--good); border-color: var(--good); }
+.bk.bad { background: var(--bad); border-color: var(--bad); }
 
 /* microphone answer panel */
 .keys.mic { display: flex; flex-direction: column; gap: 10px; height: clamp(118px, 21dvh, 168px); }
@@ -175,7 +192,46 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .stat b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; color: var(--muted); }
 .reset { align-self: flex-start; background: none; border: none; padding: 8px 0; color: var(--bad); text-decoration: underline; text-underline-offset: 3px; }
+.select { width: 100%; min-height: 48px; border: 1.5px solid var(--line); background: var(--panel); color: var(--ink); border-radius: 12px; padding: 10px 12px; font: inherit; }
+.sub { font-size: 13px; color: var(--muted); }
 .shortcuts { font-size: 13px; color: var(--muted); margin: 0; }
+/* settings: tabs, preview, switches, progress */
+.tabs { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
+.tab { border: none; background: transparent; border-radius: 9px; padding: 10px 4px; font-weight: 600; font-size: 14px; color: var(--muted); transition: background .15s, color .15s; }
+.tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
+.preview { flex: none; position: relative; display: block; width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 12px; padding: 6px 8px 18px; }
+.preview svg { display: block; width: 100%; height: clamp(80px, 13dvh, 104px); }
+.pv-hint { position: absolute; right: 12px; bottom: 5px; font-size: 11px; color: var(--muted); }
+#presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+#presets .chip { padding: 10px 2px; border-radius: 12px; font-size: 14px; }
+.stat b { font-size: 19px; }
+.pan { display: flex; flex-direction: column; gap: 20px; }
+.row input.switch { appearance: none; -webkit-appearance: none; width: 50px; height: 30px; border-radius: 15px; background: var(--line); position: relative; flex: none; margin: 0; cursor: pointer; transition: background .15s; }
+.row input.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.35); transition: transform .15s; }
+.row input.switch:checked { background: var(--accent); }
+.row input.switch:checked::after { transform: translateX(20px); }
+.tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 10px 6px; text-align: center; }
+.tile b { display: block; font-family: var(--font-display); font-size: 20px; font-variant-numeric: tabular-nums; }
+.tile span { font-size: 12px; color: var(--muted); }
+.heat { display: flex; flex-direction: column; gap: 14px; }
+.htitle { font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+.hgrid { display: grid; grid-template-columns: repeat(17, minmax(0, 1fr)); gap: 2px; }
+.hcell { height: 34px; padding: 0; border: 1px solid var(--line); background: var(--panel); border-radius: 5px; font-size: 9px; font-weight: 600; color: var(--muted); overflow: hidden; }
+.hcell.good { background: var(--good-bg); border-color: var(--good); color: var(--good); }
+.hcell.mid { background: var(--warn-bg); border-color: var(--warn); color: var(--warn); }
+.hcell.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
+.hcell.off { opacity: .35; }
+.hcell[aria-pressed="true"] { outline: 2px solid var(--ink); outline-offset: 1px; }
+.hscale { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 12px; color: var(--muted); }
+.legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; border: 1px solid var(--line); background: var(--panel); vertical-align: -2px; margin-right: 5px; }
+.legend i.good { background: var(--good-bg); border-color: var(--good); } .legend i.mid { background: var(--warn-bg); border-color: var(--warn); } .legend i.bad { background: var(--bad-bg); border-color: var(--bad); }
+.detail { margin: 0; min-height: 20px; font-size: 14px; }
+.weak { display: flex; flex-wrap: wrap; gap: 6px; }
+.weak span { background: var(--bad-bg); color: var(--bad); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
+.reset[data-armed] { font-weight: 700; }
+.resets { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -211,37 +267,99 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
       </button>
     </div>
 
-    <div class="sheet-body">
-      <section class="group" aria-labelledby="l-display">
-        <div class="label" id="l-display">Je réponds avec</div>
-        <div class="seg" id="display"></div>
-      </section>
+    <div class="tabs" role="tablist" aria-label="Sections des réglages">
+      <button class="tab" role="tab" type="button" data-tab="ex" id="tab-ex" aria-controls="pan-ex">Exercice</button>
+      <button class="tab" role="tab" type="button" data-tab="ans" id="tab-ans" aria-controls="pan-ans">Réponse</button>
+      <button class="tab" role="tab" type="button" data-tab="prog" id="tab-prog" aria-controls="pan-prog">Progression</button>
+    </div>
 
-      <section class="group" aria-labelledby="l-clefs">
-        <div class="label" id="l-clefs">Clés</div>
-        <div class="chips" id="clefs"></div>
-        <p class="hint" id="clefHint">Tu peux en choisir plusieurs : la clé change alors au hasard.</p>
-      </section>
+    <button class="preview" id="previewBox" type="button" aria-label="Aperçu de l'exercice. Toucher pour voir un autre exemple.">
+      <svg id="preview" aria-hidden="true"></svg><span class="pv-hint">Aperçu · touche pour un autre exemple</span>
+    </button>
 
-      <section class="rows" aria-label="Options">
-        <label class="row" for="ledger"><span>Lignes supplémentaires</span><input type="checkbox" id="ledger"></label>
-        <label class="row" for="showNames" id="rowNames"><span>Noms sur les touches</span><input type="checkbox" id="showNames"></label>
-        <label class="row" for="letters"><span>Notation C D E F G A B</span><input type="checkbox" id="letters"></label>
-        <label class="row" for="sound" id="rowSound"><span>Jouer la note après la réponse</span><input type="checkbox" id="sound"></label>
-      </section>
+    <div class="sheet-body" id="sheetBody">
+      <div class="pan" id="pan-ex" role="tabpanel" aria-labelledby="tab-ex">
+        <section class="group" aria-labelledby="l-presets">
+          <div class="label" id="l-presets">Préréglages</div>
+          <div class="chips" id="presets"></div>
+          <p class="hint" id="presetHint"></p>
+        </section>
 
-      <section class="group" aria-labelledby="l-stats">
-        <div class="label" id="l-stats">Progression</div>
-        <div class="stats">
-          <div class="stat"><b id="s-score">0/0</b><span>Réussies</span></div>
-          <div class="stat"><b id="s-acc">–</b><span>Précision</span></div>
-          <div class="stat"><b id="s-streak">0</b><span>Série</span></div>
-          <div class="stat"><b id="s-best">0</b><span>Meilleure</span></div>
-        </div>
-        <button class="reset" id="reset" type="button">Remettre à zéro</button>
-      </section>
+        <section class="group" aria-labelledby="l-clefs">
+          <div class="label" id="l-clefs">Clés</div>
+          <div class="chips" id="clefs"></div>
+          <p class="hint">Plusieurs clés possibles : elles alternent au hasard.</p>
+        </section>
 
-      <p class="shortcuts">Clavier : touches 1 à 7 ou lettres c d e f g a b. Entrée pour la note suivante.</p>
+        <section class="group" aria-labelledby="l-content">
+          <div class="label" id="l-content">Ce qui s'affiche</div>
+          <div class="seg" id="content"></div>
+          <div class="group" id="sizeGroup"><div class="seg" id="size"></div></div>
+          <p class="hint" id="contentHint"></p>
+        </section>
+
+        <section class="group" aria-labelledby="l-key">
+          <div class="label" id="l-key">Gamme (armure à la clé)</div>
+          <select class="select" id="keySel" aria-labelledby="l-key"></select>
+          <p class="hint">L'armure place des ♯ ou des ♭ après la clé. Les notes concernées sont alors altérées sans signe devant.</p>
+        </section>
+
+        <section class="rows" aria-label="Options de l'exercice">
+          <label class="row" for="acc"><span>Altérations accidentelles<br><small class="sub">♯ ♭ ♮ devant certaines notes</small></span><input type="checkbox" class="switch" role="switch" id="acc"></label>
+          <label class="row" for="ledger"><span>Lignes supplémentaires<br><small class="sub">Notes au-dessus et en dessous de la portée</small></span><input type="checkbox" class="switch" role="switch" id="ledger"></label>
+          <label class="row" for="focus"><span>Revoir mes erreurs en priorité<br><small class="sub">Les notes ratées reviennent plus souvent</small></span><input type="checkbox" class="switch" role="switch" id="focus"></label>
+        </section>
+      </div>
+
+      <div class="pan" id="pan-ans" role="tabpanel" aria-labelledby="tab-ans" hidden>
+        <section class="group" aria-labelledby="l-display">
+          <div class="label" id="l-display">Je réponds avec</div>
+          <div class="seg" id="display"></div>
+          <p class="hint" id="answerHint"></p>
+        </section>
+
+        <section class="rows" aria-label="Options de réponse">
+          <label class="row" for="showNames" id="rowNames"><span>Noms sur les touches</span><input type="checkbox" class="switch" role="switch" id="showNames"></label>
+          <label class="row" for="letters"><span>Notation C D E F G A B</span><input type="checkbox" class="switch" role="switch" id="letters"></label>
+          <label class="row" for="sound" id="rowSound"><span>Jouer la note après la réponse</span><input type="checkbox" class="switch" role="switch" id="sound"></label>
+        </section>
+
+        <p class="shortcuts">Clavier d'ordinateur : touches 1 à 7 ou lettres c d e f g a b, Entrée pour valider ou passer à la suite.</p>
+      </div>
+
+      <div class="pan" id="pan-prog" role="tabpanel" aria-labelledby="tab-prog" hidden>
+        <section class="group" aria-labelledby="l-stats">
+          <div class="label" id="l-stats">Cette session</div>
+          <div class="stats">
+            <div class="stat"><b id="s-score">0/0</b><span>Réussies</span></div>
+            <div class="stat"><b id="s-acc">–</b><span>Précision</span></div>
+            <div class="stat"><b id="s-streak">0</b><span>Série</span></div>
+            <div class="stat"><b id="s-best">0</b><span>Meilleure</span></div>
+          </div>
+        </section>
+
+        <section class="group" aria-labelledby="l-notes">
+          <div class="label" id="l-notes">Mes notes (clés choisies)</div>
+          <div class="tiles">
+            <div class="tile"><b id="pMaster">–</b><span>Acquises</span></div>
+            <div class="tile"><b id="pRate">–</b><span>Réussite</span></div>
+            <div class="tile"><b id="pTime">–</b><span>Temps moyen</span></div>
+          </div>
+          <div class="heat" id="heat"></div>
+          <div class="legend" aria-hidden="true"><span><i></i>Pas vue</span><span><i class="bad"></i>À revoir</span><span><i class="mid"></i>En cours</span><span><i class="good"></i>Acquise</span></div>
+          <p class="detail" id="heatDetail" aria-live="polite">Touche une case pour le détail.</p>
+        </section>
+
+        <section class="group" aria-labelledby="l-weak">
+          <div class="label" id="l-weak">À revoir en priorité</div>
+          <div class="weak" id="weakList"></div>
+        </section>
+
+        <section class="resets">
+          <button class="reset" id="reset" type="button">Remettre le score à zéro</button>
+          <button class="reset" id="resetProg" type="button">Effacer ma progression par note</button>
+        </section>
+      </div>
     </div>
 
     <div class="sheet-foot"><button class="done" id="done" type="button">Terminé</button></div>
@@ -253,6 +371,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
   var NAMES_FR = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
   var NAMES_EN = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   var SEMI = [0, 2, 4, 5, 7, 9, 11];
+  var STEP_OF_PC = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6 };
+  var SHARP_PC = { 1: [0, 1], 3: [1, 1], 6: [3, 1], 8: [4, 1], 10: [5, 1] };   // pc -> [step, alter]
+  var FLAT_PC  = { 1: [1, -1], 3: [2, -1], 6: [4, -1], 8: [5, -1], 10: [6, -1] };
   // bottom = diatonic index (C0 = 0) of the note on the bottom staff line
   var CLEFS = {
     sol: { label: 'Sol', name: 'clé de sol', bottom: 30 },
@@ -261,10 +382,27 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     ut4: { label: 'Ut 4 (ténor)', name: 'clé d\'ut 4e ligne', bottom: 22 }
   };
   var ORDER = ['sol', 'fa', 'ut3', 'ut4'];
-  var BASE_Y = 150, HALF = 7, NOTE_X = 150, STAFF_X1 = 4, STAFF_X2 = 226, CLEF_X = 14;
-  var STAFF_VIEWBOX = '0 56 230 134';
-  
-  var st = { clefs: ['sol'], answer: 'names', showNames: true, ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
+  // staff positions (0 = bottom line, 2 per line) of the key signature, in order F C G D A E B / B E A D G C F
+  var KEY_SHARPS = { sol: [8, 5, 9, 6, 3, 7, 4], fa: [6, 3, 7, 4, 1, 5, 2], ut3: [7, 4, 8, 5, 2, 6, 3], ut4: [2, 6, 3, 7, 4, 8, 5] };
+  var KEY_FLATS  = { sol: [4, 7, 3, 6, 2, 5, 1], fa: [2, 5, 1, 4, 0, 3, 6], ut3: [3, 6, 2, 5, 8, 4, 7], ut4: [5, 8, 4, 7, 3, 6, 2] };
+  var SHARP_STEPS = [3, 0, 4, 1, 5, 2, 6];
+  var FLAT_STEPS = [6, 2, 5, 1, 4, 0, 3];
+
+  var BASE_Y = 150, HALF = 7, NOTE_X = 166, STAFF_X1 = 4, STAFF_X2 = 240, CLEF_X = 14, KEY_X0 = 64;
+  var STAFF_VIEWBOX = '0 52 244 144';
+
+  var KEY_LIST = (function () {
+    var sMaj = ['Do', 'Sol', 'Ré', 'La', 'Mi', 'Si', 'Fa♯', 'Do♯'], sMin = ['La', 'Mi', 'Si', 'Fa♯', 'Do♯', 'Sol♯', 'Ré♯', 'La♯'];
+    var fMaj = ['Do', 'Fa', 'Si♭', 'Mi♭', 'La♭', 'Ré♭', 'Sol♭', 'Do♭'], fMin = ['La', 'Ré', 'Sol', 'Do', 'Fa', 'Si♭', 'Mi♭', 'La♭'];
+    var out = [], v;
+    for (v = -7; v <= 7; v++) {
+      var n = Math.abs(v), maj = v < 0 ? fMaj[n] : sMaj[n], min = v < 0 ? fMin[n] : sMin[n];
+      out.push({ v: v, label: maj + ' majeur / ' + min + ' mineur · ' + (n === 0 ? 'aucune altération' : n + (v < 0 ? ' ♭' : ' ♯')) });
+    }
+    return out;
+  })();
+
+  var st = { clefs: ['sol'], focus: true, answer: 'names', showNames: true, content: 'note', size: 3, key: 0, acc: false, mod: 0, ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
   try {
     var saved = JSON.parse(localStorage.getItem('lecture-notes') || 'null');
     if (saved) {
@@ -272,23 +410,68 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
       if (!st.clefs.length) st.clefs = ['sol'];
       if (saved.answer === 'piano' || saved.answer === 'mic') st.answer = saved.answer;
       if (saved.showNames === false) st.showNames = false;
+      if (saved.content === 'chord' || saved.content === 'mix') st.content = saved.content;
+      if (saved.size === 4) st.size = 4;
+      if (typeof saved.key === 'number' && saved.key >= -7 && saved.key <= 7) st.key = Math.round(saved.key);
+      st.acc = !!saved.acc; if (saved.focus === false) st.focus = false;
       st.ledger = !!saved.ledger; st.letters = !!saved.letters; st.sound = !!saved.sound;
       st.best = +saved.best || 0;
     }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, answer: st.answer, showNames: st.showNames, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
+    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, answer: st.answer, showNames: st.showNames, content: st.content, size: st.size, focus: st.focus, key: st.key, acc: st.acc, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
   }
+
+  var PROG_KEY = 'lecture-notes-prog', prog = { items: {} }, miss = {}, qNum = 0;
+  try { var sp = JSON.parse(localStorage.getItem(PROG_KEY) || 'null'); if (sp && sp.items && typeof sp.items === 'object') prog = sp; } catch (e) {}
+  function saveProg() { try { localStorage.setItem(PROG_KEY, JSON.stringify(prog)); } catch (e) {} }
 
   var $ = function (id) { return document.getElementById(id); };
   var board = $('board'), stage = $('stage'), fb = $('feedback'), keysEl = $('keys'), sheet = $('sheet'), app = $('app');
-  var cur = null, locked = false, timer = null, last = null, audio = null;
+  var cur = null, sel = [], locked = false, timer = null, last = null, audio = null;
 
   function names() { return st.letters ? NAMES_EN : NAMES_FR; }
   function yOf(p) { return BASE_Y - p * HALF; }
   function range() { return st.ledger ? [-4, 12] : [-1, 9]; }
+  function needsAlter() { return st.key !== 0 || st.acc; }
+  function accSym(a) { return a === 1 ? '♯' : a === -1 ? '♭' : ''; }
+  function noteName(n) { return names()[n.step] + accSym(n.alter); }
+  function pcName(pc) {
+    if (STEP_OF_PC[pc] !== undefined) return names()[STEP_OF_PC[pc]];
+    var t = (st.key < 0 ? FLAT_PC : SHARP_PC)[pc];
+    return names()[t[0]] + accSym(t[1]);
+  }
+  function keyAlter(step) {
+    var n = Math.abs(st.key);
+    if (st.key > 0 && SHARP_STEPS.slice(0, n).indexOf(step) >= 0) return 1;
+    if (st.key < 0 && FLAT_STEPS.slice(0, n).indexOf(step) >= 0) return -1;
+    return 0;
+  }
+  var CHORD_TYPES = {
+    '0,4,7': 'majeur', '0,3,7': 'mineur', '0,3,6': 'diminué', '0,4,8': 'augmenté',
+    '0,4,7,10': '7', '0,4,7,11': 'majeur 7', '0,3,7,10': 'mineur 7', '0,3,6,10': 'semi-diminué',
+    '0,3,6,9': 'diminué 7', '0,3,7,11': 'mineur majeur 7'
+  };
+  // name of the chord that is built on the lowest displayed note (root position), or ''
+  function targetChordName() {
+    if (cur.notes.length < 3) return '';
+    var r = cur.notes[0], key = cur.notes.map(function (n) { return (n.pc - r.pc + 12) % 12; }).join(',');
+    return CHORD_TYPES[key] ? noteName(r) + ' ' + CHORD_TYPES[key] : '';
+  }
+  // name of the chord formed by what the user chose, trying each chosen note as root; '' if it is not a known chord
+  function userChordName(entries) {
+    var pcs = [];
+    entries.forEach(function (e) { if (pcs.indexOf(e.pc) < 0) pcs.push(e.pc); });
+    if (pcs.length < 3) return '';
+    for (var i = 0; i < pcs.length; i++) {
+      var key = pcs.map(function (pc) { return (pc - pcs[i] + 12) % 12; }).sort(function (a, b) { return a - b; }).join(',');
+      if (CHORD_TYPES[key]) return pcName(pcs[i]) + ' ' + CHORD_TYPES[key];
+    }
+    return '';
+  }
+  function labels(list) { return list.map(function (e) { return e.label; }).join(' · '); }
 
-  /* ---------- clefs ---------- */
+  /* ---------- clefs and signs ---------- */
   function clefSvg(id) {
     var x = CLEF_X, y;
     if (id === 'sol') {
@@ -303,28 +486,98 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     return '<g transform="translate(' + x + ' ' + y + ')"><rect class="clef-fill" x="0" y="-28" width="6" height="56"/><rect class="clef-fill" x="10" y="-28" width="2.2" height="56"/>' +
       '<path class="clef" d="M15 -28 C32 -28 33 -5 17 -2 M15 28 C32 28 33 5 17 2" stroke-width="3"/></g>';
   }
-
-  /* ---------- drawing ---------- */
-  function renderStaff(reveal) {
-    var html = '';
-    for (var i = 0; i < 5; i++) html += '<line class="staff-line" x1="' + STAFF_X1 + '" x2="' + STAFF_X2 + '" y1="' + yOf(i * 2) + '" y2="' + yOf(i * 2) + '"/>';
-    html += clefSvg(cur.clef);
-    var p = cur.p, y = yOf(p), q, r;
-    if (p <= -2) for (q = -2; q >= p; q -= 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(q) + '" y2="' + yOf(q) + '"/>';
-    if (p >= 10) for (r = 10; r <= p; r += 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(r) + '" y2="' + yOf(r) + '"/>';
-    var up = p < 4, sx = up ? NOTE_X + 8.6 : NOTE_X - 8.6, sy2 = up ? y - 48 : y + 48;
-    html += '<line class="stem" x1="' + sx + '" x2="' + sx + '" y1="' + y + '" y2="' + sy2 + '"/>';
-    html += '<ellipse class="note" cx="' + NOTE_X + '" cy="' + y + '" rx="9.6" ry="6.8" transform="rotate(-20 ' + NOTE_X + ' ' + y + ')"/>';
-    if (reveal) html += '<text class="note-label" x="' + (NOTE_X + (up ? 44 : -44)) + '" y="' + (y + 7) + '">' + names()[cur.step] + '</text>';
-    board.setAttribute('viewBox', STAFF_VIEWBOX);
-    board.innerHTML = html;
-    board.setAttribute('aria-label', 'Portée en ' + CLEFS[cur.clef].name + ', une note à identifier');
+  // a = 1 sharp, -1 flat, 0 natural; (x, y) = centre of the note head the sign belongs to
+  function accGlyph(a, x, y) {
+    var g;
+    if (a === 1) g = '<path d="M-2.4 -10 V11 M2.6 -11 V10" stroke-width="1.3"/><path d="M-5.2 -2.6 L5.4 -5.6 M-5.2 5.6 L5.4 2.6" stroke-width="2.6"/>';
+    else if (a === -1) g = '<g transform="translate(0 -2)"><path d="M-2.5 -13 V6" stroke-width="1.4"/><path d="M-2.5 -1.5 C4 -5.5 8.5 1.5 -2.5 6.8" stroke-width="1.7"/></g>';
+    else g = '<path d="M-2.6 -11 V4 M2.6 -4 V11" stroke-width="1.3"/><path d="M-2.6 -1.8 L2.6 -3.6 M-2.6 5.6 L2.6 3.8" stroke-width="2.4"/>';
+    return '<g class="acc" transform="translate(' + x + ' ' + y + ')">' + g + '</g>';
   }
 
-  /* ---------- controls ---------- */
+  /* ---------- staff drawing ---------- */
+  function drawStaff(svg, q, reveal) {
+    var html = '', i, n, qq;
+    for (i = 0; i < 5; i++) html += '<line class="staff-line" x1="' + STAFF_X1 + '" x2="' + STAFF_X2 + '" y1="' + yOf(i * 2) + '" y2="' + yOf(i * 2) + '"/>';
+    html += clefSvg(q.clef);
+    if (st.key) {
+      var tbl = (st.key > 0 ? KEY_SHARPS : KEY_FLATS)[q.clef];
+      for (i = 0; i < Math.abs(st.key); i++) html += accGlyph(st.key > 0 ? 1 : -1, KEY_X0 + i * 9, yOf(tbl[i]));
+    }
+    var notes = q.notes, lo = notes[0], hi = notes[notes.length - 1], ledgers = {};
+    notes.forEach(function (nt) {
+      if (nt.p <= -2) for (qq = -2; qq >= nt.p; qq -= 2) ledgers[qq] = 1;
+      if (nt.p >= 10) for (qq = 10; qq <= nt.p; qq += 2) ledgers[qq] = 1;
+    });
+    Object.keys(ledgers).forEach(function (k) {
+      html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(+k) + '" y2="' + yOf(+k) + '"/>';
+    });
+    var up = (lo.p + hi.p) / 2 < 4, sx = up ? NOTE_X + 8.6 : NOTE_X - 8.6;
+    var y1 = up ? yOf(lo.p) : yOf(hi.p), y2 = up ? yOf(hi.p) - 48 : yOf(lo.p) + 48;
+    html += '<line class="stem" x1="' + sx + '" x2="' + sx + '" y1="' + y1 + '" y2="' + y2 + '"/>';
+    notes.forEach(function (nt) {
+      var y = yOf(nt.p);
+      html += '<ellipse class="note" cx="' + NOTE_X + '" cy="' + y + '" rx="9.6" ry="6.8" transform="rotate(-20 ' + NOTE_X + ' ' + y + ')"/>';
+    });
+    // accidentals in front of the notes, top to bottom, in columns so they do not overlap
+    var cols = [];
+    notes.slice().reverse().forEach(function (nt) {
+      if (nt.acc === null) return;
+      var c = 0;
+      while (cols[c] !== undefined && cols[c] - nt.p < 4) c++;
+      cols[c] = nt.p;
+      html += accGlyph(nt.acc, NOTE_X - 20 - c * 10, yOf(nt.p));
+    });
+    if (reveal && notes.length === 1) html += '<text class="note-label" x="' + (NOTE_X + 24) + '" y="' + (yOf(lo.p) + 7) + '">' + noteName(lo) + '</text>';
+    svg.setAttribute('viewBox', STAFF_VIEWBOX);
+    svg.innerHTML = html;
+  }
+
+  function renderStaff(reveal) {
+    drawStaff(board, cur, reveal);
+    board.setAttribute('aria-label', 'Portée en ' + CLEFS[cur.clef].name + (cur.notes.length > 1 ? ', un accord de ' + cur.notes.length + ' notes' : ', une note') + ' à identifier');
+  }
+
+  /* ---------- questions ---------- */
+  // how often an item should come back: new items a bit more, missed or slow ones much more
+  function itemWeight(key) {
+    if (!st.focus) return 1;
+    var it = prog.items[key], w;
+    if (!it || !it.n) w = 1.6;
+    else { w = [8, 5, 2.5, 1.2, 0.6][Math.min(4, it.box)]; if (it.ms > 3500) w += 1; }
+    var m = miss[key];
+    if (m !== undefined && qNum - m >= 3 && qNum - m <= 9) w *= 3;
+    return w;
+  }
+  function buildQuestion(avoidKey, weighted) {
+    var rg = range(), isChord = st.content === 'chord' || (st.content === 'mix' && Math.random() < 0.5);
+    var size = isChord ? st.size : 1, hiRoot = rg[1] - (size - 1) * 2, cands = [], total = 0, k;
+    st.clefs.forEach(function (c) {
+      for (var p = rg[0]; p <= hiRoot; p++) cands.push({ c: c, p: p, key: c + ':' + p + ':' + size });
+    });
+    if (avoidKey && cands.length > 1) cands = cands.filter(function (x) { return x.key !== avoidKey; });
+    cands.forEach(function (x) { x.w = weighted ? itemWeight(x.key) : 1; total += x.w; });
+    var r = Math.random() * total, pick = cands[cands.length - 1];
+    for (k = 0; k < cands.length; k++) { r -= cands[k].w; if (r <= 0) { pick = cands[k]; break; } }
+    var c = pick.c, p0 = pick.p, notes = [], pcs = [];
+    for (k = 0; k < size; k++) {
+      var p = p0 + 2 * k, d = CLEFS[c].bottom + p, step = ((d % 7) + 7) % 7, alter = keyAlter(step), acc = null;
+      if (st.acc && Math.random() < (isChord ? 0.3 : 0.45)) {
+        var opts = [-1, 0, 1].filter(function (a) { return a !== alter; });
+        acc = opts[Math.floor(Math.random() * opts.length)]; alter = acc;
+      }
+      var pc = (((SEMI[step] + alter) % 12) + 12) % 12;
+      notes.push({ p: p, d: d, step: step, alter: alter, acc: acc, pc: pc });
+      if (pcs.indexOf(pc) < 0) pcs.push(pc);
+    }
+    return { clef: c, notes: notes, pcs: pcs, key: pick.key, size: size };
+  }
+
+  /* ---------- answer area ---------- */
   function buildKeys() {
     keysEl.innerHTML = '';
-    keysEl.className = st.answer === 'piano' ? 'keys piano' : st.answer === 'mic' ? 'keys mic' : 'keys';
+    keysEl.className = 'keys ' + (st.answer === 'piano' ? 'piano' : st.answer === 'mic' ? 'mic' : 'names');
+    var alt = needsAlter();
     if (st.answer === 'mic') {
       keysEl.innerHTML = '<div class="mic-top"><div class="mic-note" id="micNote">–</div><div class="mic-side"><div class="mic-msg" id="micMsg"></div><div class="meter"><i id="meter"></i></div></div></div>' +
         '<button class="mic-btn" id="micBtn" type="button"></button>';
@@ -334,112 +587,159 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     }
     if (st.answer === 'piano') {
       var row = document.createElement('div'); row.className = 'wrow'; keysEl.appendChild(row);
-      names().forEach(function (n, i) {
+      SEMI.forEach(function (pc, i) {
         var b = document.createElement('button');
-        b.type = 'button'; b.className = 'wk'; b.dataset.step = i;
-        b.setAttribute('aria-label', NAMES_FR[i]);
-        b.textContent = st.showNames ? n : '';
-        b.addEventListener('click', function () { answer(i); });
+        b.type = 'button'; b.className = 'wk'; b.dataset.pc = pc;
+        b.setAttribute('aria-label', pcName(pc));
+        b.textContent = st.showNames ? names()[i] : '';
+        b.addEventListener('click', function () { tapEntry({ pc: pc, label: pcName(pc) }); });
         row.appendChild(b);
       });
-      [0, 1, 3, 4, 5].forEach(function (i) {
-        var k = document.createElement('div'); k.className = 'bk'; k.setAttribute('aria-hidden', 'true');
-        k.style.left = ((i + 1) * 100 / 7) + '%';
+      [[0, 1], [1, 3], [3, 6], [4, 8], [5, 10]].forEach(function (t) {
+        var k = document.createElement(alt ? 'button' : 'div');
+        k.className = 'bk'; k.style.left = ((t[0] + 1) * 100 / 7) + '%';
+        if (alt) {
+          k.type = 'button'; k.dataset.pc = t[1]; k.setAttribute('aria-label', pcName(t[1]));
+          k.addEventListener('click', function () { tapEntry({ pc: t[1], label: pcName(t[1]) }); });
+        } else k.setAttribute('aria-hidden', 'true');
         keysEl.appendChild(k);
       });
       return;
     }
+    if (alt) {
+      var mr = document.createElement('div'); mr.className = 'modrow'; mr.setAttribute('role', 'group'); mr.setAttribute('aria-label', 'Altération');
+      [[-1, '♭', 'Bémol'], [0, '♮', 'Naturel'], [1, '♯', 'Dièse']].forEach(function (m) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'mod'; b.dataset.mod = m[0]; b.textContent = m[1]; b.setAttribute('aria-label', m[2]);
+        b.addEventListener('click', function () { st.mod = m[0]; updateMod(); });
+        mr.appendChild(b);
+      });
+      keysEl.appendChild(mr);
+    }
+    var nr = document.createElement('div'); nr.className = 'namerow'; keysEl.appendChild(nr);
     names().forEach(function (n, i) {
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'key'; b.dataset.step = i;
       b.innerHTML = '<small>' + (i + 1) + '</small>' + n;
-      b.addEventListener('click', function () { answer(i); });
-      keysEl.appendChild(b);
+      b.addEventListener('click', function () { tapName(i); });
+      nr.appendChild(b);
     });
+    updateMod();
   }
 
-  function buildSettings() {
-    var box = $('clefs'); box.innerHTML = '';
-    ORDER.forEach(function (id) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip'; b.textContent = CLEFS[id].label;
-      b.setAttribute('aria-pressed', st.clefs.indexOf(id) >= 0);
-      b.addEventListener('click', function () {
-        var i = st.clefs.indexOf(id);
-        if (i >= 0) { if (st.clefs.length > 1) st.clefs.splice(i, 1); }
-        else st.clefs.push(id);
-        buildSettings(); save(); next();
-      });
-      box.appendChild(b);
+  function updateMod() {
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-mod]'), function (b) { b.setAttribute('aria-pressed', +b.dataset.mod === st.mod); });
+  }
+  function updateSel() {
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-pc]'), function (k) {
+      k.classList.toggle('sel', sel.some(function (e) { return e.pc === +k.dataset.pc; }));
     });
-    var seg = $('display'); seg.innerHTML = '';
-    [['names', 'Noms des notes'], ['piano', 'Touches de piano'], ['mic', 'Mon piano (micro)']].forEach(function (m) {
-      var b = document.createElement('button');
-      b.type = 'button'; b.className = 'chip'; b.textContent = m[1];
-      b.setAttribute('aria-pressed', st.answer === m[0]);
-      b.addEventListener('click', function () { st.answer = m[0]; buildSettings(); save(); buildKeys(); next(); if (m[0] === 'mic') micStart(); else micStop(); });
-      seg.appendChild(b);
-    });
-    $('rowNames').hidden = st.answer !== 'piano';
-    $('rowSound').hidden = st.answer === 'mic';
+  }
+  function pcIndex(list, pc) { for (var i = 0; i < list.length; i++) if (list[i].pc === pc) return i; return -1; }
+
+  function tapName(step) {
+    if (locked) return;
+    var a = st.mod, pc = (((SEMI[step] + a) % 12) + 12) % 12;
+    st.mod = 0; updateMod();
+    tapEntry({ pc: pc, step: step, label: names()[step] + accSym(a) });
+  }
+  function tapEntry(e) {
+    if (locked) return;
+    if (cur.pcs.length === 1) { answer([e]); return; }
+    var i = pcIndex(sel, e.pc);
+    if (i >= 0) sel.splice(i, 1); else sel.push(e);
+    updateSel(); askUI();
+  }
+  function micEntry(e) {
+    if (locked) return;
+    if (cur.pcs.length === 1) { answer([e]); return; }
+    if (pcIndex(sel, e.pc) < 0) sel.push(e);
+    if (sel.length >= cur.pcs.length) answer(sel.slice()); else askUI();
+  }
+
+  // what the feedback bar says while a question is waiting for an answer
+  function askUI() {
+    if (locked) return;
+    var need = cur.pcs.length, html, mic_ = st.answer === 'mic';
+    fb.className = 'feedback';
+    if (need === 1) {
+      html = '<span>' + (mic_ ? 'Joue cette note sur ton piano.' : 'Quel est le nom de cette note ?') + '</span>' + (mic_ ? '<button class="skip" type="button" id="skipBtn">Passer</button>' : '');
+    } else {
+      var chosen = sel.length ? labels(sel) + (mic_ ? ' (' + sel.length + '/' + need + ')' : '') : (mic_ ? 'Dans n\'importe quel ordre' : 'Touche-les une par une');
+      html = '<span>' + (mic_ ? 'Joue les ' + need + ' notes, une par une' : 'Trouve les ' + need + ' notes de l\'accord') + '<small>' + chosen + '</small></span><span class="btns">' +
+        (sel.length ? '<button class="skip" type="button" id="clearBtn">Effacer</button>' : '') +
+        (mic_ ? '<button class="skip" type="button" id="skipBtn">Passer</button>' : '<button class="next" type="button" id="okBtn"' + (sel.length === need ? '' : ' disabled') + '>Valider</button>') + '</span>';
+    }
+    fb.innerHTML = html;
+    var b;
+    if ((b = $('skipBtn'))) b.addEventListener('click', next);
+    if ((b = $('clearBtn'))) b.addEventListener('click', function () { sel = []; updateSel(); askUI(); });
+    if ((b = $('okBtn'))) b.addEventListener('click', function () { if (sel.length === cur.pcs.length) answer(sel.slice()); });
   }
 
   function next() {
     clearTimeout(timer);
-    var rg = range(), c, p, tries = 0;
-    do {
-      c = st.clefs[Math.floor(Math.random() * st.clefs.length)];
-      p = rg[0] + Math.floor(Math.random() * (rg[1] - rg[0] + 1));
-      tries++;
-    } while (last && last.clef === c && last.p === p && tries < 20);
-    var d = CLEFS[c].bottom + p;
-    cur = { clef: c, p: p, d: d, step: ((d % 7) + 7) % 7 };
-    last = { clef: c, p: p };
-    locked = false;
-    mic.pending = null;
-    if (mic.on) { micNoteShow('–'); micMsg('Joue la note.'); }
+    cur = buildQuestion(last && last.key, true); last = { key: cur.key }; cur.t0 = performance.now(); qNum++;
+    locked = false; sel = []; st.mod = 0; mic.pending = null;
+    if (mic.on) { micNoteShow('–'); micMsg(cur.pcs.length > 1 ? 'Joue les notes.' : 'Joue la note.'); }
     stage.className = 'stage';
-    fb.className = 'feedback';
-    fb.innerHTML = '<span>' + (st.answer === 'mic' ? 'Joue cette note sur ton piano.' : 'Quel est le nom de cette note ?') + '</span>';
-    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-step]'), function (k) { k.classList.remove('good', 'bad'); k.disabled = false; });
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-pc], [data-step]'), function (k) { k.classList.remove('good', 'bad', 'sel'); k.disabled = false; });
+    updateMod();
+    askUI();
     renderStaff(false);
   }
 
-  function play(d) {
+  function play(notes) {
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
       if (audio.state === 'suspended') audio.resume();
-      var midi = 12 * (Math.floor(d / 7) + 1) + SEMI[((d % 7) + 7) % 7];
-      var f = 440 * Math.pow(2, (midi - 69) / 12);
-      var o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
-      o.type = 'triangle'; o.frequency.value = f;
-      g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.28, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 1.1);
-      o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + 1.15);
+      var t = audio.currentTime, vol = 0.28 / Math.sqrt(notes.length);
+      notes.forEach(function (n) {
+        var midi = 12 * (Math.floor(n.d / 7) + 1) + SEMI[n.step] + n.alter;
+        var o = audio.createOscillator(), g = audio.createGain();
+        o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
+        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
+        o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + 1.35);
+      });
     } catch (e) {}
   }
 
-  function answer(i) {
+  function answer(entries) {
     if (locked) return;
     locked = true;
-    var ok = i === cur.step;
+    var u = [];
+    entries.forEach(function (e) { if (u.indexOf(e.pc) < 0) u.push(e.pc); });
+    var ok = u.length === cur.pcs.length && cur.pcs.every(function (pc) { return u.indexOf(pc) >= 0; });
     st.total++;
     if (ok) { st.correct++; st.streak++; if (st.streak > st.best) { st.best = st.streak; save(); } }
     else st.streak = 0;
-    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-step]'), function (k) {
-      k.disabled = true;
-      if (+k.dataset.step === cur.step) k.classList.add('good');
-      else if (+k.dataset.step === i) k.classList.add('bad');
+    var it = prog.items[cur.key] || (prog.items[cur.key] = { n: 0, ok: 0, ms: 0, box: 0 }), dt = Math.min(15000, Math.round(performance.now() - cur.t0));
+    it.n++;
+    if (ok) { it.ok++; it.box = Math.min(4, it.box + 1); it.ms = it.ms ? Math.round(it.ms * 0.6 + dt * 0.4) : dt; }
+    else { it.box = 0; miss[cur.key] = qNum; }
+    saveProg();
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-pc], [data-step]'), function (k) {
+      k.disabled = true; k.classList.remove('sel');
+      if (k.dataset.pc !== undefined) {
+        var pc = +k.dataset.pc;
+        if (cur.pcs.indexOf(pc) >= 0) k.classList.add('good'); else if (u.indexOf(pc) >= 0) k.classList.add('bad');
+      } else {
+        var step = +k.dataset.step;
+        var wrong = entries.some(function (e) { return e.step === step && cur.pcs.indexOf(e.pc) < 0; });
+        if (wrong) k.classList.add('bad'); else if (cur.notes.some(function (n) { return n.step === step; })) k.classList.add('good');
+      }
     });
     stage.className = 'stage ' + (ok ? 'good' : 'bad');
     renderStaff(true);
-    if (st.sound && st.answer !== 'mic') play(cur.d);
+    if (st.sound && st.answer !== 'mic') play(cur.notes);
+    var target = cur.notes.map(noteName).join(' · '), cname = targetChordName(), uname = ok ? '' : userChordName(entries);
     if (ok) {
       fb.className = 'feedback good';
-      fb.innerHTML = '<strong>Juste : ' + names()[cur.step] + '</strong>';
-      timer = setTimeout(next, 900);
+      fb.innerHTML = cname ? '<span><strong>Juste : ' + cname + '</strong><small>' + target + '</small></span>' : '<strong>Juste : ' + target + '</strong>';
+      timer = setTimeout(next, cur.notes.length > 1 ? 2200 : st.answer === 'mic' ? 1300 : 900);
     } else {
       fb.className = 'feedback bad';
-      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '</strong> · tu as ' + (st.answer === 'mic' ? 'joué ' : 'répondu ') + names()[i] + '</span><button class="next" type="button" id="nextBtn">Suivant</button>';
+      fb.innerHTML = '<span><strong>C\'était ' + (cname || target) + '</strong><small>' + (cname ? target + ' · ' : '') + 'tu as ' + (st.answer === 'mic' ? 'joué ' : 'répondu ') + labels(entries) + (uname ? ' (' + uname + ')' : '') + '</small></span><button class="next" type="button" id="nextBtn">Suivant</button>';
       var nb = $('nextBtn'); nb.addEventListener('click', next); nb.focus();
     }
     if (st.answer === 'mic') micMsg('Note reçue.');
@@ -454,7 +754,148 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     $('hud').innerHTML = '<b>' + st.correct + '/' + st.total + '</b> · série <b>' + st.streak + '</b>';
   }
 
-  /* ---------- settings sheet ---------- */
+  /* ---------- settings ---------- */
+  var tab = 'ex', pv = { sig: '', q: null }, heatSel = '';
+  var PRESETS = [
+    { label: 'Débutant', hint: 'Clé de sol, notes seules, sans altération.', cfg: { clefs: ['sol'], content: 'note', size: 3, key: 0, acc: false, ledger: false } },
+    { label: 'Pianiste', hint: 'Clés de sol et de fa, notes et accords de 3 notes, lignes supplémentaires.', cfg: { clefs: ['sol', 'fa'], content: 'mix', size: 3, key: 0, acc: false, ledger: true } },
+    { label: 'Accords', hint: 'Clé de sol, accords de 3 notes.', cfg: { clefs: ['sol'], content: 'chord', size: 3, key: 0, acc: false, ledger: false } },
+    { label: 'Expert', hint: 'Les 4 clés, notes et accords de 4 notes, altérations, lignes supplémentaires.', cfg: { clefs: ORDER.slice(), content: 'mix', size: 4, key: 0, acc: true, ledger: true } }
+  ];
+  var SWITCHES = ['acc', 'ledger', 'focus', 'showNames', 'letters', 'sound'];
+
+  function sameSet(a, b) { return a.length === b.length && a.every(function (x) { return b.indexOf(x) >= 0; }); }
+  function presetMatch(p) {
+    var c = p.cfg;
+    return sameSet(st.clefs, c.clefs) && st.content === c.content && (c.content === 'note' || st.size === c.size) && st.key === c.key && st.acc === c.acc && st.ledger === c.ledger;
+  }
+  function applyPreset(p) {
+    var c = p.cfg;
+    st.clefs = c.clefs.slice(); st.content = c.content; st.size = c.size; st.key = c.key; st.acc = c.acc; st.ledger = c.ledger;
+    refresh();
+  }
+  function seg(el, items, current, onPick) {
+    el.innerHTML = '';
+    items.forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = m[1];
+      b.setAttribute('aria-pressed', current === m[0]);
+      b.addEventListener('click', function () { onPick(m[0]); });
+      el.appendChild(b);
+    });
+  }
+  function refresh() { buildSettings(); save(); buildKeys(); next(); }
+
+  function renderPreview() {
+    var sig = JSON.stringify([st.clefs, st.content, st.size, st.key, st.acc, st.ledger]);
+    if (sig !== pv.sig || !pv.q) { pv.sig = sig; pv.q = buildQuestion(null, false); }
+    drawStaff($('preview'), pv.q, false);
+  }
+
+  function itemStatus(it) {
+    if (!it || !it.n) return 'new';
+    var acc = it.ok / it.n;
+    if (it.box >= 3 && acc >= 0.8) return 'good';
+    if (it.box <= 1 || acc < 0.6) return 'bad';
+    return 'mid';
+  }
+  function fmtMs(ms) { return (ms / 1000).toFixed(1).replace('.', ',') + ' s'; }
+  function itemInfo(key) {
+    var t = key.split(':'), c = t[0], p = +t[1], d = CLEFS[c].bottom + p, step = ((d % 7) + 7) % 7;
+    return { clef: c, p: p, step: step, name: names()[step], clefName: CLEFS[c].name };
+  }
+  function buildProgress() {
+    var rg = range(), heat = $('heat'), total = 0, mastered = 0, sOk = 0, sN = 0, msSum = 0, msN = 0, weak = [];
+    heat.innerHTML = '';
+    st.clefs.forEach(function (c) {
+      var blk = document.createElement('div'), ttl = document.createElement('div'), grid = document.createElement('div'), sc = document.createElement('div');
+      ttl.className = 'htitle'; ttl.textContent = CLEFS[c].name.charAt(0).toUpperCase() + CLEFS[c].name.slice(1);
+      grid.className = 'hgrid';
+      sc.className = 'hscale'; sc.innerHTML = '<span>grave</span><span>aigu</span>';
+      for (var p = -4; p <= 12; p++) {
+        var key = c + ':' + p + ':1', it = prog.items[key], inf = itemInfo(key), inR = p >= rg[0] && p <= rg[1], status = itemStatus(it);
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'hcell ' + status + (inR ? '' : ' off'); b.textContent = inf.name; b.dataset.key = key;
+        b.setAttribute('aria-label', inf.name + ', ' + inf.clefName);
+        b.setAttribute('aria-pressed', heatSel === key);
+        b.addEventListener('click', function (e) { heatSel = e.currentTarget.dataset.key; buildProgress(); });
+        grid.appendChild(b);
+        if (inR) {
+          total++;
+          if (status === 'good') mastered++;
+          if (it && it.n) { sOk += it.ok; sN += it.n; if (it.ms) { msSum += it.ms; msN++; } }
+          if (status === 'bad') weak.push({ key: key, it: it });
+        }
+      }
+      blk.className = 'hblock'; blk.appendChild(ttl); blk.appendChild(grid); blk.appendChild(sc); heat.appendChild(blk);
+    });
+    $('pMaster').textContent = mastered + '/' + total;
+    $('pRate').textContent = sN ? Math.round(100 * sOk / sN) + ' %' : '–';
+    $('pTime').textContent = msN ? fmtMs(msSum / msN) : '–';
+    var det = $('heatDetail');
+    if (heatSel) {
+      var inf2 = itemInfo(heatSel), it2 = prog.items[heatSel];
+      det.textContent = inf2.name + ' · ' + inf2.clefName + ' : ' + (it2 && it2.n ? it2.ok + ' réussie' + (it2.ok > 1 ? 's' : '') + ' sur ' + it2.n + (it2.ms ? ' · ' + fmtMs(it2.ms) + ' en moyenne' : '') : 'pas encore vue');
+    } else det.textContent = sN ? 'Touche une case pour le détail.' : 'Réponds à quelques questions : ta progression apparaîtra ici.';
+    weak.sort(function (a, b) { return a.it.box - b.it.box || a.it.ok / a.it.n - b.it.ok / b.it.n; });
+    var wl = $('weakList'); wl.innerHTML = '';
+    weak.slice(0, 5).forEach(function (w) {
+      var inf3 = itemInfo(w.key), sp = document.createElement('span');
+      sp.textContent = inf3.name + ' · ' + inf3.clefName + ' (' + Math.round(100 * w.it.ok / w.it.n) + ' %)';
+      wl.appendChild(sp);
+    });
+    if (!weak.length) { var none = document.createElement('p'); none.className = 'hint'; none.textContent = sN ? 'Aucun point faible pour l\'instant.' : 'Rien à signaler pour l\'instant.'; wl.appendChild(none); }
+  }
+
+  function buildSettings() {
+    var pr = $('presets'), active = null; pr.innerHTML = '';
+    PRESETS.forEach(function (p) {
+      var on = presetMatch(p), b = document.createElement('button');
+      if (on) active = p;
+      b.type = 'button'; b.className = 'chip'; b.textContent = p.label; b.setAttribute('aria-pressed', on);
+      b.addEventListener('click', function () { applyPreset(p); });
+      pr.appendChild(b);
+    });
+    $('presetHint').textContent = active ? active.hint : 'Réglages personnalisés.';
+    var box = $('clefs'); box.innerHTML = '';
+    ORDER.forEach(function (id) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = CLEFS[id].label;
+      b.setAttribute('aria-pressed', st.clefs.indexOf(id) >= 0);
+      b.addEventListener('click', function () {
+        var i = st.clefs.indexOf(id);
+        if (i >= 0) { if (st.clefs.length > 1) st.clefs.splice(i, 1); }
+        else st.clefs.push(id);
+        buildSettings(); save(); next();
+      });
+      box.appendChild(b);
+    });
+    seg($('content'), [['note', 'Notes seules'], ['chord', 'Accords'], ['mix', 'Notes et accords']], st.content, function (v) { st.content = v; refresh(); });
+    seg($('size'), [[3, 'Accords de 3 notes'], [4, 'Accords de 4 notes']], st.size, function (v) { st.size = v; refresh(); });
+    $('sizeGroup').hidden = st.content === 'note';
+    $('contentHint').textContent = st.content === 'note' ? '' : (st.answer === 'mic'
+      ? 'Au micro, joue les notes de l\'accord une par une, dans l\'ordre que tu veux.'
+      : 'Retrouve chaque note de l\'accord, puis touche Valider.');
+    $('keySel').value = String(st.key);
+    SWITCHES.forEach(function (id) { $(id).checked = !!st[id]; });
+    seg($('display'), [['names', 'Noms des notes'], ['piano', 'Touches de piano'], ['mic', 'Mon piano (micro)']], st.answer,
+      function (v) { st.answer = v; if (v === 'mic') micStart(); else micStop(); refresh(); });
+    $('answerHint').textContent = st.answer === 'mic'
+      ? 'Pose le téléphone près du piano, dans un endroit calme, et joue la note affichée. Seul le nom de la note compte, pas l\'octave.'
+      : st.answer === 'piano' ? 'Touche la touche qui correspond à la note. Les touches noires servent dès qu\'il y a des altérations.'
+      : 'Touche le nom de la note. Avec des altérations, touche d\'abord ♭ ou ♯, puis la note.';
+    $('rowNames').hidden = st.answer !== 'piano';
+    $('rowSound').hidden = st.answer === 'mic';
+    Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) {
+      var on = b.dataset.tab === tab;
+      b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
+      $('pan-' + b.dataset.tab).hidden = !on;
+    });
+    $('previewBox').hidden = tab !== 'ex';
+    if (tab === 'ex') renderPreview();
+    if (tab === 'prog') buildProgress();
+  }
+
   function openSheet() {
     sheet.hidden = false; app.setAttribute('inert', ''); buildSettings(); stats();
     $('closeSettings').focus();
@@ -466,27 +907,54 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
   $('openSettings').addEventListener('click', openSheet);
   $('closeSettings').addEventListener('click', closeSheet);
   $('done').addEventListener('click', closeSheet);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-tab]'), function (b) {
+    b.addEventListener('click', function () { tab = b.dataset.tab; buildSettings(); $('sheetBody').scrollTop = 0; });
+  });
+  $('previewBox').addEventListener('click', function () { pv.q = buildQuestion(null, false); renderPreview(); });
 
-  $('showNames').checked = st.showNames; $('ledger').checked = st.ledger; $('letters').checked = st.letters; $('sound').checked = st.sound;
-  $('ledger').addEventListener('change', function (e) { st.ledger = e.target.checked; save(); next(); });
-  $('showNames').addEventListener('change', function (e) { st.showNames = e.target.checked; save(); buildKeys(); next(); });
-  $('letters').addEventListener('change', function (e) { st.letters = e.target.checked; save(); buildKeys(); next(); });
-  $('sound').addEventListener('change', function (e) { st.sound = e.target.checked; save(); if (st.sound) play(cur.d); });
-  $('reset').addEventListener('click', function () { st.correct = st.total = st.streak = 0; st.best = 0; save(); stats(); next(); });
+  KEY_LIST.forEach(function (k) {
+    var o = document.createElement('option'); o.value = String(k.v); o.textContent = k.label; $('keySel').appendChild(o);
+  });
+  $('keySel').addEventListener('change', function (e) { st.key = +e.target.value; refresh(); });
+  SWITCHES.forEach(function (id) {
+    $(id).addEventListener('change', function (e) {
+      st[id] = e.target.checked;
+      if (id === 'acc') refresh();
+      else if (id === 'ledger') { buildSettings(); save(); next(); }
+      else if (id === 'showNames' || id === 'letters') { save(); buildKeys(); next(); }
+      else if (id === 'sound') { save(); if (st.sound && cur) play(cur.notes); }
+      else save();
+    });
+  });
+
+  // two taps to confirm, since dialogs are not available
+  function armConfirm(btn, idle, action) {
+    var t;
+    btn.addEventListener('click', function () {
+      if (btn.dataset.armed) { clearTimeout(t); delete btn.dataset.armed; btn.textContent = idle; action(); }
+      else { btn.dataset.armed = '1'; btn.textContent = 'Toucher encore pour confirmer'; t = setTimeout(function () { delete btn.dataset.armed; btn.textContent = idle; }, 3500); }
+    });
+  }
+  armConfirm($('reset'), 'Remettre le score à zéro', function () { st.correct = st.total = st.streak = 0; st.best = 0; save(); stats(); next(); });
+  armConfirm($('resetProg'), 'Effacer ma progression par note', function () { prog = { items: {} }; miss = {}; heatSel = ''; saveProg(); buildSettings(); next(); });
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !sheet.hidden) { closeSheet(); return; }
     if (!sheet.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === 'Enter' && locked && e.target.tagName !== 'BUTTON') { next(); return; }
+    if (e.key === 'Enter') {
+      if (locked && e.target.tagName !== 'BUTTON') next();
+      else if (!locked && sel.length && sel.length === cur.pcs.length && st.answer !== 'mic' && e.target.tagName !== 'BUTTON') answer(sel.slice());
+      return;
+    }
+    if (st.answer !== 'names' || locked) return;
     var n = parseInt(e.key, 10), idx = -1;
     if (n >= 1 && n <= 7) idx = n - 1;
     else idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase());
-    if (idx >= 0 && !locked) answer(idx);
+    if (idx >= 0) tapName(idx);
   });
 
   /* ---------- microphone ---------- */
   var mic = { on: false, ctx: null, stream: null, an: null, buf: null, timer: null, slow: 0, pending: null, msg: '', note: '–' };
-  var CLASS_TO_STEP = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6 };
 
   function micMsg(t) { mic.msg = t; var e = $('micMsg'); if (e) e.textContent = t; }
   function micNoteShow(t) { mic.note = t; var e = $('micNote'); if (e) e.textContent = t; }
@@ -543,9 +1011,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     var k = pd.seen.length;
     if (k >= 3 && pd.seen[k - 1] === pd.seen[k - 2] && pd.seen[k - 2] === pd.seen[k - 3]) {
       mic.pending = null;
-      if (CLASS_TO_STEP[cls] === undefined) { micNoteShow('♯/♭'); micMsg('Touche noire : joue une touche blanche.'); return; }
-      micNoteShow(names()[CLASS_TO_STEP[cls]]);
-      answer(CLASS_TO_STEP[cls]);
+      if (STEP_OF_PC[cls] === undefined && !needsAlter()) { micNoteShow('♯/♭'); micMsg('Touche noire : joue une touche blanche.'); return; }
+      micNoteShow(pcName(cls));
+      micEntry({ pc: cls, label: pcName(cls) });
     }
   }
 
