@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -48,7 +48,8 @@
   --key: #e6ebf3; --keyline: #0b0f15; --blackkey: #0b0f15; --blackline: #566074;
   color-scheme: dark;
 }
-* { box-sizing: border-box; }
+* { box-sizing: border-box; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; touch-action: manipulation; }
+html, body { overscroll-behavior: none; -webkit-text-size-adjust: 100%; }
 html { box-sizing: border-box; height: 100%; overflow: hidden; }
 @supports (height: 100dvh) { html { height: 100dvh; } }
 body {
@@ -459,6 +460,17 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     else idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase());
     if (idx >= 0 && !locked) answer(idx);
   });
+
+  // app feel: no long-press menu, no pinch or double-tap zoom
+  ['contextmenu', 'gesturestart', 'gesturechange', 'gestureend', 'dragstart', 'selectstart'].forEach(function (ev) {
+    document.addEventListener(ev, function (e) { e.preventDefault(); });
+  });
+  var lastTouch = 0;
+  document.addEventListener('touchend', function (e) {
+    var now = Date.now();
+    if (now - lastTouch < 350) e.preventDefault();
+    lastTouch = now;
+  }, { passive: false });
 
   buildSettings(); buildKeys(); stats(); next();
 })();
