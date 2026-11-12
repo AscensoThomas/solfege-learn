@@ -130,6 +130,18 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .bk { position: absolute; top: 0; height: 60%; width: 8.6%; transform: translateX(-50%); background: var(--blackkey); border: 1.5px solid var(--blackline); border-radius: 0 0 6px 6px; z-index: 2; }
 @media (max-width: 380px) { .wk { font-size: 14px; } }
 
+/* microphone answer panel */
+.keys.mic { display: flex; flex-direction: column; gap: 10px; height: clamp(118px, 21dvh, 168px); }
+.mic-top { flex: 1; min-height: 0; display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 8px 14px; }
+.mic-note { flex: none; width: 76px; text-align: center; font-family: var(--font-display); font-weight: 700; font-size: 38px; color: var(--accent); }
+.mic-side { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.mic-msg { font-size: 14px; color: var(--muted); }
+.meter { height: 8px; border-radius: 4px; background: var(--line); overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .06s linear; }
+.mic-btn { flex: none; height: 48px; border: none; border-radius: 12px; background: var(--accent); color: var(--accent-ink); font-weight: 600; font-size: 16px; }
+.mic-btn.off { background: var(--panel); color: var(--ink); border: 1.5px solid var(--line); }
+.seg .chip:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
 /* settings sheet */
 .sheet {
   position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column;
@@ -215,7 +227,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
         <label class="row" for="ledger"><span>Lignes supplémentaires</span><input type="checkbox" id="ledger"></label>
         <label class="row" for="showNames" id="rowNames"><span>Noms sur les touches</span><input type="checkbox" id="showNames"></label>
         <label class="row" for="letters"><span>Notation C D E F G A B</span><input type="checkbox" id="letters"></label>
-        <label class="row" for="sound"><span>Jouer la note après la réponse</span><input type="checkbox" id="sound"></label>
+        <label class="row" for="sound" id="rowSound"><span>Jouer la note après la réponse</span><input type="checkbox" id="sound"></label>
       </section>
 
       <section class="group" aria-labelledby="l-stats">
@@ -258,7 +270,7 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     if (saved) {
       if (Array.isArray(saved.clefs)) st.clefs = saved.clefs.filter(function (c) { return CLEFS[c]; });
       if (!st.clefs.length) st.clefs = ['sol'];
-      if (saved.answer === 'piano') st.answer = 'piano';
+      if (saved.answer === 'piano' || saved.answer === 'mic') st.answer = saved.answer;
       if (saved.showNames === false) st.showNames = false;
       st.ledger = !!saved.ledger; st.letters = !!saved.letters; st.sound = !!saved.sound;
       st.best = +saved.best || 0;
@@ -312,7 +324,14 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
   /* ---------- controls ---------- */
   function buildKeys() {
     keysEl.innerHTML = '';
-    keysEl.className = st.answer === 'piano' ? 'keys piano' : 'keys';
+    keysEl.className = st.answer === 'piano' ? 'keys piano' : st.answer === 'mic' ? 'keys mic' : 'keys';
+    if (st.answer === 'mic') {
+      keysEl.innerHTML = '<div class="mic-top"><div class="mic-note" id="micNote">–</div><div class="mic-side"><div class="mic-msg" id="micMsg"></div><div class="meter"><i id="meter"></i></div></div></div>' +
+        '<button class="mic-btn" id="micBtn" type="button"></button>';
+      $('micBtn').addEventListener('click', function () { if (mic.on) micStop(); else micStart(); });
+      micUI();
+      return;
+    }
     if (st.answer === 'piano') {
       var row = document.createElement('div'); row.className = 'wrow'; keysEl.appendChild(row);
       names().forEach(function (n, i) {
@@ -354,14 +373,15 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
       box.appendChild(b);
     });
     var seg = $('display'); seg.innerHTML = '';
-    [['names', 'Noms des notes'], ['piano', 'Touches de piano']].forEach(function (m) {
+    [['names', 'Noms des notes'], ['piano', 'Touches de piano'], ['mic', 'Mon piano (micro)']].forEach(function (m) {
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'chip'; b.textContent = m[1];
       b.setAttribute('aria-pressed', st.answer === m[0]);
-      b.addEventListener('click', function () { st.answer = m[0]; buildSettings(); save(); buildKeys(); next(); });
+      b.addEventListener('click', function () { st.answer = m[0]; buildSettings(); save(); buildKeys(); next(); if (m[0] === 'mic') micStart(); else micStop(); });
       seg.appendChild(b);
     });
     $('rowNames').hidden = st.answer !== 'piano';
+    $('rowSound').hidden = st.answer === 'mic';
   }
 
   function next() {
@@ -376,9 +396,11 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     cur = { clef: c, p: p, d: d, step: ((d % 7) + 7) % 7 };
     last = { clef: c, p: p };
     locked = false;
+    mic.pending = null;
+    if (mic.on) { micNoteShow('–'); micMsg('Joue la note.'); }
     stage.className = 'stage';
     fb.className = 'feedback';
-    fb.innerHTML = '<span>Quel est le nom de cette note ?</span>';
+    fb.innerHTML = '<span>' + (st.answer === 'mic' ? 'Joue cette note sur ton piano.' : 'Quel est le nom de cette note ?') + '</span>';
     Array.prototype.forEach.call(keysEl.querySelectorAll('[data-step]'), function (k) { k.classList.remove('good', 'bad'); k.disabled = false; });
     renderStaff(false);
   }
@@ -410,16 +432,17 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     });
     stage.className = 'stage ' + (ok ? 'good' : 'bad');
     renderStaff(true);
-    if (st.sound) play(cur.d);
+    if (st.sound && st.answer !== 'mic') play(cur.d);
     if (ok) {
       fb.className = 'feedback good';
       fb.innerHTML = '<strong>Juste : ' + names()[cur.step] + '</strong>';
       timer = setTimeout(next, 900);
     } else {
       fb.className = 'feedback bad';
-      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '</strong> · tu as répondu ' + names()[i] + '</span><button class="next" type="button" id="nextBtn">Suivant</button>';
+      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '</strong> · tu as ' + (st.answer === 'mic' ? 'joué ' : 'répondu ') + names()[i] + '</span><button class="next" type="button" id="nextBtn">Suivant</button>';
       var nb = $('nextBtn'); nb.addEventListener('click', next); nb.focus();
     }
+    if (st.answer === 'mic') micMsg('Note reçue.');
     stats();
   }
 
@@ -460,6 +483,102 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
     else idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase());
     if (idx >= 0 && !locked) answer(idx);
   });
+
+  /* ---------- microphone ---------- */
+  var mic = { on: false, ctx: null, stream: null, an: null, buf: null, timer: null, slow: 0, pending: null, msg: '', note: '–' };
+  var CLASS_TO_STEP = { 0: 0, 2: 1, 4: 2, 5: 3, 7: 4, 9: 5, 11: 6 };
+
+  function micMsg(t) { mic.msg = t; var e = $('micMsg'); if (e) e.textContent = t; }
+  function micNoteShow(t) { mic.note = t; var e = $('micNote'); if (e) e.textContent = t; }
+  function micUI() {
+    var b = $('micBtn'); if (!b) return;
+    b.textContent = mic.on ? 'Arrêter le micro' : 'Activer le micro';
+    b.className = 'mic-btn' + (mic.on ? ' off' : '');
+    micMsg(mic.msg || (mic.on ? 'Joue la note.' : 'Active le micro, puis joue la note sur ton piano.'));
+    micNoteShow(mic.note);
+  }
+
+  function yin(buf, sr) {
+    var W = 2048, tauMax = Math.min(Math.floor(sr / 60), buf.length - W - 1), tauMin = Math.max(2, Math.floor(sr / 1200));
+    var d = new Float32Array(tauMax + 1), tau, j, diff, sum, run = 0;
+    for (tau = 1; tau <= tauMax; tau++) {
+      sum = 0;
+      for (j = 0; j < W; j++) { diff = buf[j] - buf[j + tau]; sum += diff * diff; }
+      d[tau] = sum;
+    }
+    d[0] = 1;
+    for (tau = 1; tau <= tauMax; tau++) { run += d[tau]; d[tau] = run ? d[tau] * tau / run : 1; }
+    var found = -1;
+    for (tau = tauMin; tau < tauMax; tau++) {
+      if (d[tau] < 0.15) { while (tau + 1 < tauMax && d[tau + 1] < d[tau]) tau++; found = tau; break; }
+    }
+    if (found < 0) return null;
+    var x0 = found - 1, x2 = found + 1, better = found;
+    if (x0 >= 1 && x2 <= tauMax) {
+      var den = d[x0] - 2 * d[found] + d[x2];
+      if (den) better = found + (d[x0] - d[x2]) / (2 * den);
+    }
+    return sr / better;
+  }
+
+  function micTick() {
+    if (!mic.on) return;
+    mic.an.getFloatTimeDomainData(mic.buf);
+    var i, n = mic.buf.length, e = 0;
+    for (i = 0; i < n; i++) e += mic.buf[i] * mic.buf[i];
+    var rms = Math.sqrt(e / n), now = Date.now(), m = $('meter');
+    if (m) m.style.width = Math.min(100, rms * 600) + '%';
+    var onset = rms > 0.01 && rms > mic.slow * 1.5;
+    mic.slow = mic.slow * 0.85 + rms * 0.15;
+    if (locked || sheet.hidden === false) { return; }
+    if (!mic.pending && onset) { mic.pending = { t: now, seen: [] }; micMsg('Écoute…'); return; }
+    var pd = mic.pending;
+    if (!pd) return;
+    if (now - pd.t > 1000) { mic.pending = null; micMsg('Note non reconnue, rejoue-la.'); return; }
+    if (now - pd.t < 140) return;
+    var f = yin(mic.buf, mic.ctx.sampleRate);
+    if (!f || f < 55 || f > 1300) return;
+    var midi = Math.round(69 + 12 * Math.log2(f / 440)), cls = ((midi % 12) + 12) % 12;
+    pd.seen.push(cls);
+    var k = pd.seen.length;
+    if (k >= 3 && pd.seen[k - 1] === pd.seen[k - 2] && pd.seen[k - 2] === pd.seen[k - 3]) {
+      mic.pending = null;
+      if (CLASS_TO_STEP[cls] === undefined) { micNoteShow('♯/♭'); micMsg('Touche noire : joue une touche blanche.'); return; }
+      micNoteShow(names()[CLASS_TO_STEP[cls]]);
+      answer(CLASS_TO_STEP[cls]);
+    }
+  }
+
+  function micStart() {
+    if (mic.on) return;
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      mic.msg = 'Micro indisponible ici. Ouvre la page en https dans Safari.'; micUI(); return;
+    }
+    mic.msg = 'Autorise le micro…'; micUI();
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }).then(function (stream) {
+      var AC = window.AudioContext || window.webkitAudioContext;
+      mic.ctx = mic.ctx || new AC();
+      if (mic.ctx.state === 'suspended') mic.ctx.resume();
+      mic.stream = stream;
+      var src = mic.ctx.createMediaStreamSource(stream);
+      mic.an = mic.ctx.createAnalyser(); mic.an.fftSize = 4096; mic.an.smoothingTimeConstant = 0;
+      mic.buf = new Float32Array(mic.an.fftSize);
+      src.connect(mic.an);
+      mic.on = true; mic.slow = 0; mic.pending = null; mic.msg = 'Joue la note.';
+      clearInterval(mic.timer); mic.timer = setInterval(micTick, 50);
+      micUI();
+    }).catch(function (err) {
+      mic.on = false;
+      mic.msg = (err && err.name === 'NotAllowedError') ? 'Micro refusé. Autorise-le dans les réglages du navigateur.' : 'Micro indisponible ici.';
+      micUI();
+    });
+  }
+  function micStop() {
+    clearInterval(mic.timer); mic.timer = null; mic.on = false; mic.pending = null;
+    if (mic.stream) { mic.stream.getTracks().forEach(function (t) { t.stop(); }); mic.stream = null; }
+    mic.msg = ''; micNoteShow('–'); micUI();
+  }
+  document.addEventListener('visibilitychange', function () { if (document.hidden && mic.on) micStop(); });
 
   // app feel: no long-press menu, no pinch or double-tap zoom
   ['contextmenu', 'gesturestart', 'gesturechange', 'gestureend', 'dragstart', 'selectstart'].forEach(function (ev) {
