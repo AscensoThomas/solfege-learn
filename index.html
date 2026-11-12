@@ -9,12 +9,12 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Solfège">
 <meta name="theme-color" content="#0d6e7a">
-<style>:root{color-scheme:light}body{margin:0}</style>
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
 <title>Lecture de notes</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap">
 <style>
-/* Layout: one column tool. Controls on top, the staff as the main object, answer keys under it, stats last. */
+/* Layout: one-screen app. Header (score + gear), stage card (staff or piano + feedback), answer row at the thumb. Settings = full-screen sheet. */
 :root {
   --bg: #eef1f5;
   --panel: #ffffff;
@@ -27,6 +27,10 @@
   --good-bg: #dff3e7;
   --bad: #c23a3a;
   --bad-bg: #f9e1e1;
+  --key: #fbfcfe;
+  --keyline: #8b96a8;
+  --blackkey: #1a2333;
+  --blackline: #1a2333;
   --font-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
   --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
 }
@@ -34,163 +38,244 @@
   :root:not([data-theme="light"]) {
     --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
     --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+    --key: #e6ebf3; --keyline: #0b0f15; --blackkey: #0b0f15; --blackline: #566074;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
   --bg: #11161e; --panel: #1a212c; --ink: #e4e9f1; --muted: #98a3b5; --line: #303a4a;
   --accent: #4fc0cc; --accent-ink: #0b1519; --good: #5ccf8f; --good-bg: #17382a; --bad: #f08080; --bad-bg: #3d1f22;
+  --key: #e6ebf3; --keyline: #0b0f15; --blackkey: #0b0f15; --blackline: #566074;
   color-scheme: dark;
 }
 * { box-sizing: border-box; }
+html { box-sizing: border-box; height: 100%; overflow: hidden; }
+@supports (height: 100dvh) { html { height: 100dvh; } }
 body {
-  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.5;
-  padding-block: 24px 40px;
+  height: 100%; overflow: hidden;
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 15px; line-height: 1.4;
   padding-left: max(16px, env(safe-area-inset-left, 0px));
   padding-right: max(16px, env(safe-area-inset-right, 0px));
+  -webkit-tap-highlight-color: transparent;
 }
-main { max-width: 640px; margin: 0 auto; display: flex; flex-direction: column; gap: 16px; }
-h1 { font-family: var(--font-display); font-size: 28px; line-height: 1.15; margin: 0; letter-spacing: -0.01em; text-wrap: balance; }
-.sub { color: var(--muted); margin: 4px 0 0; }
-.group { display: flex; flex-direction: column; gap: 8px; }
-.label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
-.chips { display: flex; flex-wrap: wrap; gap: 8px; }
-button { font: inherit; color: inherit; cursor: pointer; }
-button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
-.chip {
-  border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 14px; font-weight: 500;
-  transition: background .15s, border-color .15s, color .15s;
+button { font: inherit; color: inherit; cursor: pointer; touch-action: manipulation; }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+.app { height: 100%; max-width: 520px; margin: 0 auto; display: flex; flex-direction: column; gap: 10px; padding-block: 10px; }
+
+/* header */
+.top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
+.brand { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+.hud { margin-left: auto; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hud b { color: var(--ink); font-weight: 600; }
+.icon-btn {
+  width: 44px; height: 44px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--panel);
+  display: inline-grid; place-items: center; flex: none;
 }
-.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
-.opts { display: flex; flex-wrap: wrap; gap: 8px 20px; }
-.opts label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
-.opts input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; }
-.card { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; }
-.stage { padding: 8px 8px 4px; }
-.stage svg { display: block; width: 100%; height: auto; max-height: 340px; }
-.staff-line { stroke: var(--ink); stroke-width: 1.4; }
+.icon-btn svg { width: 24px; height: 24px; }
+
+/* stage */
+.stage-card { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.stage { flex: 1; min-height: 0; display: flex; padding: 8px; }
+.stage svg { width: 100%; height: 100%; display: block; }
+.feedback {
+  flex: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 8px 14px; border-top: 1px solid var(--line); color: var(--muted);
+}
+.feedback.good { color: var(--good); background: var(--good-bg); }
+.feedback.bad { color: var(--bad); background: var(--bad-bg); }
+.feedback strong { font-family: var(--font-display); font-size: 17px; }
+.next { border: none; background: var(--accent); color: var(--accent-ink); border-radius: 10px; padding: 10px 18px; font-weight: 600; white-space: nowrap; }
+
+/* staff drawing */
+.staff-line { stroke: var(--ink); stroke-width: 1.3; }
 .ledger { stroke: var(--ink); stroke-width: 1.6; }
 .clef { fill: none; stroke: var(--ink); stroke-width: 3.2; stroke-linecap: round; stroke-linejoin: round; }
 .clef-fill { fill: var(--ink); stroke: none; }
 .note { fill: var(--ink); }
 .stem { stroke: var(--ink); stroke-width: 1.8; stroke-linecap: round; }
-.note-label { font-family: var(--font-display); font-weight: 700; font-size: 20px; text-anchor: middle; }
-.stage.good .note, .stage.good .stem { fill: var(--good); stroke: var(--good); }
-.stage.good .stem { fill: none; }
-.stage.bad .note { fill: var(--bad); }
-.stage.bad .stem { stroke: var(--bad); }
-.stage.good .note-label { fill: var(--good); }
-.stage.bad .note-label { fill: var(--bad); }
-.feedback {
-  min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px; border-top: 1px solid var(--line);
-  color: var(--muted);
-}
-.feedback.good { color: var(--good); background: var(--good-bg); }
-.feedback.bad { color: var(--bad); background: var(--bad-bg); }
-.feedback strong { font-family: var(--font-display); font-size: 17px; }
-.next { border: none; background: var(--accent); color: var(--accent-ink); border-radius: 8px; padding: 8px 16px; font-weight: 600; white-space: nowrap; }
-.keys { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 8px; }
+.note-label { font-family: var(--font-display); font-weight: 700; font-size: 20px; text-anchor: middle; fill: var(--ink); }
+.good .note { fill: var(--good); } .good .stem { stroke: var(--good); } .good .note-label { fill: var(--good); }
+.bad .note { fill: var(--bad); } .bad .stem { stroke: var(--bad); } .bad .note-label { fill: var(--bad); }
+
+/* answer row */
+.keys { flex: none; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
 .key {
-  position: relative; border: 1.5px solid var(--line); background: var(--panel); border-radius: 10px; padding: 16px 0 14px;
-  font-family: var(--font-display); font-weight: 700; font-size: 18px; text-align: center;
+  position: relative; height: clamp(56px, 11dvh, 76px); border: 1.5px solid var(--line); background: var(--panel); border-radius: 12px;
+  font-family: var(--font-display); font-weight: 700; font-size: 18px; text-align: center; padding: 8px 0 0;
   transition: background .12s, border-color .12s, transform .08s;
 }
-.key:hover:not(:disabled) { border-color: var(--accent); }
-.key:active:not(:disabled) { transform: translateY(1px); }
+.key:active:not(:disabled) { transform: translateY(1px); border-color: var(--accent); }
 .key small { position: absolute; top: 4px; left: 0; right: 0; font-family: var(--font-body); font-weight: 500; font-size: 10px; color: var(--muted); }
 .key.good { background: var(--good-bg); border-color: var(--good); color: var(--good); }
 .key.bad { background: var(--bad-bg); border-color: var(--bad); color: var(--bad); }
 .key:disabled { cursor: default; }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; padding: 12px 8px; }
+@media (max-width: 380px) { .key { font-size: 15px; } .keys { gap: 4px; } }
+
+/* answer keyboard: one octave, white keys answer, black keys are decoration */
+.keys.piano { display: block; position: relative; height: clamp(118px, 21dvh, 168px); }
+.wrow { position: absolute; inset: 0; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.wk {
+  position: relative; border: 1.5px solid var(--keyline); background: var(--key); color: var(--blackkey);
+  border-radius: 0 0 10px 10px; margin: 0; padding: 0 0 12px; display: flex; align-items: flex-end; justify-content: center;
+  font-family: var(--font-display); font-weight: 700; font-size: 17px; transition: background .12s;
+}
+.wk + .wk { border-left-width: 0; }
+.wk:first-child { border-left-width: 1.5px; }
+.wk:active:not(:disabled) { background: var(--accent); color: var(--accent-ink); }
+.wk.good { background: var(--good-bg); color: var(--good); border-color: var(--good); }
+.wk.bad { background: var(--bad-bg); color: var(--bad); border-color: var(--bad); }
+.wk:disabled { cursor: default; }
+.bk { position: absolute; top: 0; height: 60%; width: 8.6%; transform: translateX(-50%); background: var(--blackkey); border: 1.5px solid var(--blackline); border-radius: 0 0 6px 6px; z-index: 2; }
+@media (max-width: 380px) { .wk { font-size: 14px; } }
+
+/* settings sheet */
+.sheet {
+  position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+}
+.sheet-in { width: 100%; max-width: 520px; margin: 0 auto; height: 100%; display: flex; flex-direction: column; }
+.sheet-top { flex: none; display: flex; align-items: center; justify-content: space-between; padding-block: 10px; }
+.sheet-top h2 { font-family: var(--font-display); font-size: 22px; margin: 0; }
+.sheet-body > * { flex: none; }
+.sheet-body { flex: 1; min-height: 0; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; padding-bottom: 12px; overscroll-behavior: contain; }
+.sheet-foot { flex: none; padding-block: 10px; }
+.done { width: 100%; border: none; background: var(--accent); color: var(--accent-ink); border-radius: 12px; height: 52px; font-weight: 600; font-size: 16px; }
+.group { display: flex; flex-direction: column; gap: 8px; }
+.label { font-size: 12px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hint { margin: 0; font-size: 13px; color: var(--muted); }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  border: 1.5px solid var(--line); background: var(--panel); border-radius: 999px; padding: 10px 16px; font-weight: 500; min-height: 44px;
+  transition: background .15s, border-color .15s, color .15s;
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.seg .chip { border-radius: 12px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.rows { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 16px; cursor: pointer; }
+.row + .row { border-top: 1px solid var(--line); }
+.row input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; flex: none; }
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; }
 .stat { text-align: center; }
 .stat b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; color: var(--muted); }
-.foot { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; color: var(--muted); font-size: 13px; }
-.link { background: none; border: none; padding: 4px 0; color: var(--accent); text-decoration: underline; text-underline-offset: 3px; }
-@media (max-width: 420px) {
-  .key { font-size: 15px; padding: 16px 0 12px; }
-  .keys { gap: 5px; }
-  h1 { font-size: 24px; }
-}
+.reset { align-self: flex-start; background: none; border: none; padding: 8px 0; color: var(--bad); text-decoration: underline; text-underline-offset: 3px; }
+.shortcuts { font-size: 13px; color: var(--muted); margin: 0; }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
 </head>
 <body>
-<main>
-  <header>
-    <h1>Lecture de notes</h1>
-    <p class="sub">Une note s'affiche sur la portée. Nomme-la.</p>
+<div class="app" id="app">
+  <header class="top">
+    <div class="brand">Solfège</div>
+    <div class="hud" id="hud" aria-live="off"></div>
+    <button class="icon-btn" id="openSettings" type="button" aria-label="Réglages" aria-haspopup="dialog">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <circle cx="12" cy="12" r="8.6" stroke-width="3.2" stroke-dasharray="3.38 3.38" stroke-dashoffset="1.7"/>
+        <circle cx="12" cy="12" r="6" stroke-width="2"/>
+        <circle cx="12" cy="12" r="2.4" stroke-width="2"/>
+      </svg>
+    </button>
   </header>
 
-  <section class="group" aria-labelledby="l-clefs">
-    <div class="label" id="l-clefs">Clés (une ou plusieurs)</div>
-    <div class="chips" id="clefs"></div>
+  <section class="stage-card" aria-live="polite">
+    <div class="stage" id="stage"><svg id="board" role="img" aria-label="Note à identifier"></svg></div>
+    <div class="feedback" id="feedback"><span>Quel est le nom de cette note ?</span></div>
   </section>
 
-  <section class="group">
-    <div class="opts">
-      <label for="ledger"><input type="checkbox" id="ledger"> Lignes supplémentaires</label>
-      <label for="letters"><input type="checkbox" id="letters"> Notation C D E F G A B</label>
-      <label for="sound"><input type="checkbox" id="sound"> Jouer la note</label>
+  <section class="keys" id="keys" aria-label="Réponse"></section>
+</div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
+  <div class="sheet-in">
+    <div class="sheet-top">
+      <h2 id="sheetTitle">Réglages</h2>
+      <button class="icon-btn" id="closeSettings" type="button" aria-label="Fermer les réglages">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
     </div>
-  </section>
 
-  <section class="card" aria-live="polite">
-    <div class="stage" id="stage"><svg id="staff" viewBox="0 0 340 230" role="img" aria-label="Portée"></svg></div>
-    <div class="feedback" id="feedback"><span>Choisis le nom de la note.</span></div>
-  </section>
+    <div class="sheet-body">
+      <section class="group" aria-labelledby="l-display">
+        <div class="label" id="l-display">Je réponds avec</div>
+        <div class="seg" id="display"></div>
+      </section>
 
-  <section class="keys" id="keys" aria-label="Noms des notes"></section>
+      <section class="group" aria-labelledby="l-clefs">
+        <div class="label" id="l-clefs">Clés</div>
+        <div class="chips" id="clefs"></div>
+        <p class="hint" id="clefHint">Tu peux en choisir plusieurs : la clé change alors au hasard.</p>
+      </section>
 
-  <section class="card stats" aria-label="Score">
-    <div class="stat"><b id="s-score">0/0</b><span>Réussies</span></div>
-    <div class="stat"><b id="s-acc">–</b><span>Précision</span></div>
-    <div class="stat"><b id="s-streak">0</b><span>Série</span></div>
-    <div class="stat"><b id="s-best">0</b><span>Meilleure série</span></div>
-  </section>
+      <section class="rows" aria-label="Options">
+        <label class="row" for="ledger"><span>Lignes supplémentaires</span><input type="checkbox" id="ledger"></label>
+        <label class="row" for="showNames" id="rowNames"><span>Noms sur les touches</span><input type="checkbox" id="showNames"></label>
+        <label class="row" for="letters"><span>Notation C D E F G A B</span><input type="checkbox" id="letters"></label>
+        <label class="row" for="sound"><span>Jouer la note après la réponse</span><input type="checkbox" id="sound"></label>
+      </section>
 
-  <div class="foot">
-    <span>Clavier : touches 1 à 7, ou les lettres c d e f g a b. Entrée pour passer à la suite.</span>
-    <button class="link" id="reset" type="button">Remettre à zéro</button>
+      <section class="group" aria-labelledby="l-stats">
+        <div class="label" id="l-stats">Progression</div>
+        <div class="stats">
+          <div class="stat"><b id="s-score">0/0</b><span>Réussies</span></div>
+          <div class="stat"><b id="s-acc">–</b><span>Précision</span></div>
+          <div class="stat"><b id="s-streak">0</b><span>Série</span></div>
+          <div class="stat"><b id="s-best">0</b><span>Meilleure</span></div>
+        </div>
+        <button class="reset" id="reset" type="button">Remettre à zéro</button>
+      </section>
+
+      <p class="shortcuts">Clavier : touches 1 à 7 ou lettres c d e f g a b. Entrée pour la note suivante.</p>
+    </div>
+
+    <div class="sheet-foot"><button class="done" id="done" type="button">Terminé</button></div>
   </div>
-</main>
+</div>
 
 <script>
 (function () {
   var NAMES_FR = ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'];
   var NAMES_EN = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
   var SEMI = [0, 2, 4, 5, 7, 9, 11];
-  // bottom: diatonic index (C0 = 0) of the note on the bottom line. Ref: staff position of the clef's anchor line.
+  // bottom = diatonic index (C0 = 0) of the note on the bottom staff line
   var CLEFS = {
-    sol: { label: 'Sol', name: 'Clé de sol', bottom: 30 },
-    fa:  { label: 'Fa',  name: 'Clé de fa', bottom: 18 },
-    ut3: { label: 'Ut 3 (alto)',   name: 'Clé d\'ut 3e ligne', bottom: 24 },
-    ut4: { label: 'Ut 4 (ténor)',  name: 'Clé d\'ut 4e ligne', bottom: 22 }
+    sol: { label: 'Sol', name: 'clé de sol', bottom: 30 },
+    fa:  { label: 'Fa',  name: 'clé de fa', bottom: 18 },
+    ut3: { label: 'Ut 3 (alto)',  name: 'clé d\'ut 3e ligne', bottom: 24 },
+    ut4: { label: 'Ut 4 (ténor)', name: 'clé d\'ut 4e ligne', bottom: 22 }
   };
   var ORDER = ['sol', 'fa', 'ut3', 'ut4'];
-  var BASE_Y = 150, HALF = 7, NOTE_X = 235, STAFF_X1 = 14, STAFF_X2 = 326, CLEF_X = 30;
-
-  var st = { clefs: ['sol'], ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
+  var BASE_Y = 150, HALF = 7, NOTE_X = 150, STAFF_X1 = 4, STAFF_X2 = 226, CLEF_X = 14;
+  var STAFF_VIEWBOX = '0 56 230 134';
+  
+  var st = { clefs: ['sol'], answer: 'names', showNames: true, ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
   try {
     var saved = JSON.parse(localStorage.getItem('lecture-notes') || 'null');
     if (saved) {
-      if (Array.isArray(saved.clefs) && saved.clefs.length) st.clefs = saved.clefs.filter(function (c) { return CLEFS[c]; });
+      if (Array.isArray(saved.clefs)) st.clefs = saved.clefs.filter(function (c) { return CLEFS[c]; });
       if (!st.clefs.length) st.clefs = ['sol'];
+      if (saved.answer === 'piano') st.answer = 'piano';
+      if (saved.showNames === false) st.showNames = false;
       st.ledger = !!saved.ledger; st.letters = !!saved.letters; st.sound = !!saved.sound;
       st.best = +saved.best || 0;
     }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
+    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, answer: st.answer, showNames: st.showNames, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
   }
 
   var $ = function (id) { return document.getElementById(id); };
-  var staff = $('staff'), stage = $('stage'), fb = $('feedback'), keysEl = $('keys');
+  var board = $('board'), stage = $('stage'), fb = $('feedback'), keysEl = $('keys'), sheet = $('sheet'), app = $('app');
   var cur = null, locked = false, timer = null, last = null, audio = null;
 
+  function names() { return st.letters ? NAMES_EN : NAMES_FR; }
   function yOf(p) { return BASE_Y - p * HALF; }
+  function range() { return st.ledger ? [-4, 12] : [-1, 9]; }
 
+  /* ---------- clefs ---------- */
   function clefSvg(id) {
     var x = CLEF_X, y;
     if (id === 'sol') {
@@ -206,31 +291,44 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
       '<path class="clef" d="M15 -28 C32 -28 33 -5 17 -2 M15 28 C32 28 33 5 17 2" stroke-width="3"/></g>';
   }
 
-  function render(reveal) {
-    var clef = CLEFS[cur.clef], html = '';
+  /* ---------- drawing ---------- */
+  function renderStaff(reveal) {
+    var html = '';
     for (var i = 0; i < 5; i++) html += '<line class="staff-line" x1="' + STAFF_X1 + '" x2="' + STAFF_X2 + '" y1="' + yOf(i * 2) + '" y2="' + yOf(i * 2) + '"/>';
     html += clefSvg(cur.clef);
-    var p = cur.p, y = yOf(p);
-    // ledger lines
-    if (p <= -2) for (var q = -2; q >= p; q -= 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(q) + '" y2="' + yOf(q) + '"/>';
-    if (p >= 10) for (var r = 10; r <= p; r += 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(r) + '" y2="' + yOf(r) + '"/>';
-    var up = p < 4;
-    var sx = up ? NOTE_X + 8.6 : NOTE_X - 8.6;
-    var sy2 = up ? y - 48 : y + 48;
+    var p = cur.p, y = yOf(p), q, r;
+    if (p <= -2) for (q = -2; q >= p; q -= 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(q) + '" y2="' + yOf(q) + '"/>';
+    if (p >= 10) for (r = 10; r <= p; r += 2) html += '<line class="ledger" x1="' + (NOTE_X - 17) + '" x2="' + (NOTE_X + 17) + '" y1="' + yOf(r) + '" y2="' + yOf(r) + '"/>';
+    var up = p < 4, sx = up ? NOTE_X + 8.6 : NOTE_X - 8.6, sy2 = up ? y - 48 : y + 48;
     html += '<line class="stem" x1="' + sx + '" x2="' + sx + '" y1="' + y + '" y2="' + sy2 + '"/>';
     html += '<ellipse class="note" cx="' + NOTE_X + '" cy="' + y + '" rx="9.6" ry="6.8" transform="rotate(-20 ' + NOTE_X + ' ' + y + ')"/>';
-    if (reveal) {
-      var ly = up ? Math.min(y - 60, yOf(9)) : Math.max(y + 72, BASE_Y + 20);
-      html += '<text class="note-label" x="' + (NOTE_X + (up ? 44 : -44)) + '" y="' + (y + 7) + '">' + names()[cur.step] + '</text>';
-    }
-    staff.innerHTML = html;
-    staff.setAttribute('aria-label', 'Portée en ' + clef.name.toLowerCase() + ', une note à identifier');
+    if (reveal) html += '<text class="note-label" x="' + (NOTE_X + (up ? 44 : -44)) + '" y="' + (y + 7) + '">' + names()[cur.step] + '</text>';
+    board.setAttribute('viewBox', STAFF_VIEWBOX);
+    board.innerHTML = html;
+    board.setAttribute('aria-label', 'Portée en ' + CLEFS[cur.clef].name + ', une note à identifier');
   }
 
-  function names() { return st.letters ? NAMES_EN : NAMES_FR; }
-
+  /* ---------- controls ---------- */
   function buildKeys() {
     keysEl.innerHTML = '';
+    keysEl.className = st.answer === 'piano' ? 'keys piano' : 'keys';
+    if (st.answer === 'piano') {
+      var row = document.createElement('div'); row.className = 'wrow'; keysEl.appendChild(row);
+      names().forEach(function (n, i) {
+        var b = document.createElement('button');
+        b.type = 'button'; b.className = 'wk'; b.dataset.step = i;
+        b.setAttribute('aria-label', NAMES_FR[i]);
+        b.textContent = st.showNames ? n : '';
+        b.addEventListener('click', function () { answer(i); });
+        row.appendChild(b);
+      });
+      [0, 1, 3, 4, 5].forEach(function (i) {
+        var k = document.createElement('div'); k.className = 'bk'; k.setAttribute('aria-hidden', 'true');
+        k.style.left = ((i + 1) * 100 / 7) + '%';
+        keysEl.appendChild(k);
+      });
+      return;
+    }
     names().forEach(function (n, i) {
       var b = document.createElement('button');
       b.type = 'button'; b.className = 'key'; b.dataset.step = i;
@@ -240,7 +338,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     });
   }
 
-  function buildChips() {
+  function buildSettings() {
     var box = $('clefs'); box.innerHTML = '';
     ORDER.forEach(function (id) {
       var b = document.createElement('button');
@@ -250,18 +348,27 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
         var i = st.clefs.indexOf(id);
         if (i >= 0) { if (st.clefs.length > 1) st.clefs.splice(i, 1); }
         else st.clefs.push(id);
-        buildChips(); save(); next();
+        buildSettings(); save(); next();
       });
       box.appendChild(b);
     });
+    var seg = $('display'); seg.innerHTML = '';
+    [['names', 'Noms des notes'], ['piano', 'Touches de piano']].forEach(function (m) {
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = m[1];
+      b.setAttribute('aria-pressed', st.answer === m[0]);
+      b.addEventListener('click', function () { st.answer = m[0]; buildSettings(); save(); buildKeys(); next(); });
+      seg.appendChild(b);
+    });
+    $('rowNames').hidden = st.answer !== 'piano';
   }
 
   function next() {
     clearTimeout(timer);
-    var range = st.ledger ? [-4, 12] : [-1, 9], c, p, tries = 0;
+    var rg = range(), c, p, tries = 0;
     do {
       c = st.clefs[Math.floor(Math.random() * st.clefs.length)];
-      p = range[0] + Math.floor(Math.random() * (range[1] - range[0] + 1));
+      p = rg[0] + Math.floor(Math.random() * (rg[1] - rg[0] + 1));
       tries++;
     } while (last && last.clef === c && last.p === p && tries < 20);
     var d = CLEFS[c].bottom + p;
@@ -270,14 +377,15 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     locked = false;
     stage.className = 'stage';
     fb.className = 'feedback';
-    fb.innerHTML = '<span>Choisis le nom de la note.</span>';
-    Array.prototype.forEach.call(keysEl.children, function (k) { k.className = 'key'; k.disabled = false; });
-    render(false);
+    fb.innerHTML = '<span>Quel est le nom de cette note ?</span>';
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-step]'), function (k) { k.classList.remove('good', 'bad'); k.disabled = false; });
+    renderStaff(false);
   }
 
   function play(d) {
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      if (audio.state === 'suspended') audio.resume();
       var midi = 12 * (Math.floor(d / 7) + 1) + SEMI[((d % 7) + 7) % 7];
       var f = 440 * Math.pow(2, (midi - 69) / 12);
       var o = audio.createOscillator(), g = audio.createGain(), t = audio.currentTime;
@@ -294,13 +402,13 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     st.total++;
     if (ok) { st.correct++; st.streak++; if (st.streak > st.best) { st.best = st.streak; save(); } }
     else st.streak = 0;
-    Array.prototype.forEach.call(keysEl.children, function (k) {
+    Array.prototype.forEach.call(keysEl.querySelectorAll('[data-step]'), function (k) {
       k.disabled = true;
-      if (+k.dataset.step === cur.step) k.className = 'key good';
-      else if (+k.dataset.step === i) k.className = 'key bad';
+      if (+k.dataset.step === cur.step) k.classList.add('good');
+      else if (+k.dataset.step === i) k.classList.add('bad');
     });
     stage.className = 'stage ' + (ok ? 'good' : 'bad');
-    render(true);
+    renderStaff(true);
     if (st.sound) play(cur.d);
     if (ok) {
       fb.className = 'feedback good';
@@ -308,7 +416,7 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
       timer = setTimeout(next, 900);
     } else {
       fb.className = 'feedback bad';
-      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '.</strong> Tu avais répondu ' + names()[i] + '.</span><button class="next" type="button" id="nextBtn">Suivant</button>';
+      fb.innerHTML = '<span><strong>C\'était ' + names()[cur.step] + '</strong> · tu as répondu ' + names()[i] + '</span><button class="next" type="button" id="nextBtn">Suivant</button>';
       var nb = $('nextBtn'); nb.addEventListener('click', next); nb.focus();
     }
     stats();
@@ -319,24 +427,40 @@ button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
     $('s-acc').textContent = st.total ? Math.round(100 * st.correct / st.total) + ' %' : '–';
     $('s-streak').textContent = st.streak;
     $('s-best').textContent = st.best;
+    $('hud').innerHTML = '<b>' + st.correct + '/' + st.total + '</b> · série <b>' + st.streak + '</b>';
   }
 
-  document.addEventListener('keydown', function (e) {
-    if (e.ctrlKey || e.metaKey || e.altKey) return;
-    if (e.key === 'Enter' && locked && e.target.tagName !== 'BUTTON') { next(); return; }
-    var n = parseInt(e.key, 10), idx = -1;
-    if (n >= 1 && n <= 7) idx = n - 1;
-    else { idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase()); }
-    if (idx >= 0 && !locked && e.target.tagName !== 'INPUT') answer(idx);
-  });
+  /* ---------- settings sheet ---------- */
+  function openSheet() {
+    sheet.hidden = false; app.setAttribute('inert', ''); buildSettings(); stats();
+    $('closeSettings').focus();
+  }
+  function closeSheet() {
+    sheet.hidden = true; app.removeAttribute('inert');
+    $('openSettings').focus();
+  }
+  $('openSettings').addEventListener('click', openSheet);
+  $('closeSettings').addEventListener('click', closeSheet);
+  $('done').addEventListener('click', closeSheet);
 
-  $('ledger').checked = st.ledger; $('letters').checked = st.letters; $('sound').checked = st.sound;
+  $('showNames').checked = st.showNames; $('ledger').checked = st.ledger; $('letters').checked = st.letters; $('sound').checked = st.sound;
   $('ledger').addEventListener('change', function (e) { st.ledger = e.target.checked; save(); next(); });
-  $('letters').addEventListener('change', function (e) { st.letters = e.target.checked; save(); buildKeys(); if (locked) { var c = cur; next(); } else next(); });
+  $('showNames').addEventListener('change', function (e) { st.showNames = e.target.checked; save(); buildKeys(); next(); });
+  $('letters').addEventListener('change', function (e) { st.letters = e.target.checked; save(); buildKeys(); next(); });
   $('sound').addEventListener('change', function (e) { st.sound = e.target.checked; save(); if (st.sound) play(cur.d); });
   $('reset').addEventListener('click', function () { st.correct = st.total = st.streak = 0; st.best = 0; save(); stats(); next(); });
 
-  buildChips(); buildKeys(); stats(); next();
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape' && !sheet.hidden) { closeSheet(); return; }
+    if (!sheet.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (e.key === 'Enter' && locked && e.target.tagName !== 'BUTTON') { next(); return; }
+    var n = parseInt(e.key, 10), idx = -1;
+    if (n >= 1 && n <= 7) idx = n - 1;
+    else idx = NAMES_EN.map(function (x) { return x.toLowerCase(); }).indexOf((e.key || '').toLowerCase());
+    if (idx >= 0 && !locked) answer(idx);
+  });
+
+  buildSettings(); buildKeys(); stats(); next();
 })();
 </script>
 </body>
