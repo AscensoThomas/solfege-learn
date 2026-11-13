@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -69,6 +70,69 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 /* header */
 .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex: none; }
 .brand { font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.01em; }
+.brand { background: none; border: 0; padding: 4px 6px 4px 0; margin: 0; color: var(--ink); cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.brand svg { width: 18px; height: 18px; color: var(--muted); }
+.home { position: fixed; inset: 0; z-index: 30; background: var(--bg); display: flex; flex-direction: column; overflow-y: auto; gap: 22px;
+  padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-left: max(20px, env(safe-area-inset-left, 0px)); padding-right: max(20px, env(safe-area-inset-right, 0px)); }
+.home-in { width: 100%; max-width: 480px; margin: auto; padding: 16px 0; display: flex; flex-direction: column; gap: 12px; }
+.home h1 { font-family: var(--font-display); font-size: 34px; letter-spacing: -0.02em; margin: 0; }
+.home .lead { margin: 0 0 8px; color: var(--muted); font-size: 16px; }
+.mode-card { display: flex; align-items: center; gap: 16px; width: 100%; text-align: left; background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 18px; color: var(--ink); font: inherit; cursor: pointer; }
+.mode-card:active { transform: scale(0.985); }
+.mode-card .mi { flex: none; width: 52px; height: 52px; border-radius: 14px; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
+.mode-card .mi svg { width: 28px; height: 28px; }
+.mode-card b { display: block; font-family: var(--font-display); font-size: 20px; margin-bottom: 2px; }
+.mode-card span.d { display: block; color: var(--muted); font-size: 14px; line-height: 1.35; }
+.mode-card[disabled] { opacity: 0.55; cursor: default; }
+.mode-card[disabled] .mi { background: var(--line); color: var(--muted); }
+.mode-card .soon { margin-left: auto; flex: none; font-size: 12px; font-weight: 600; color: var(--muted); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; }
+.tabs.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.rstage { flex: 1; min-height: 0; display: flex; flex-direction: column; padding: 8px; position: relative; }
+.rstage > svg { width: 100%; flex: 1; min-height: 0; display: block; }
+.rstage > svg.rprev { flex: none; height: auto; aspect-ratio: 400 / 85; opacity: .42; margin-top: 2px; }
+.rstage.full > svg#rboard { margin-top: 56px; }
+.rstage.full > svg.battue { height: min(76px, 22%); }
+.rcount { position: absolute; left: 0; right: 0; bottom: 12px; text-align: center; font-family: var(--font-display); font-size: 48px; font-weight: 700; color: var(--accent); pointer-events: none; line-height: 1; }
+.rstaff { stroke: var(--ink); stroke-width: 1.1; opacity: .6; }
+.rbar { stroke: var(--ink); opacity: .75; }
+.ev { color: var(--ink); }
+.ev.good { color: var(--good); }
+.ev.bad { color: var(--bad); }
+.tapmark { fill: var(--accent); }
+.tapmark.good { fill: var(--good); }
+.tapmark.bad { fill: var(--bad); }
+.rcur { stroke: var(--accent); stroke-width: 2; stroke-linecap: round; opacity: .85; }
+.rpad { flex: none; display: flex; flex-direction: column; gap: 8px; height: clamp(168px, 29dvh, 232px); }
+.rrow { flex: none; display: flex; gap: 8px; }
+.rbtn { flex: 1; height: 46px; border-radius: 12px; border: 1px solid var(--line); background: var(--panel); color: var(--ink); font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; }
+.rbtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); flex: 1.3; }
+.rbtn:disabled { opacity: .45; cursor: default; }
+.tap { flex: 1; min-height: 0; border: 0; border-radius: 18px; background: var(--accent); color: var(--accent-ink); font-family: var(--font-display); font-weight: 700; font-size: 22px; touch-action: none; transition: transform .06s, filter .06s; }
+.tap:disabled { opacity: .35; }
+.tap.hit { transform: scale(.985); filter: brightness(1.15); }
+.tempo { display: flex; align-items: center; gap: 14px; }
+.tempo input { flex: 1; accent-color: var(--accent); height: 32px; }
+.tempo b { min-width: 74px; text-align: right; font-variant-numeric: tabular-nums; }
+.rstage > svg.battue { position: absolute; top: 6px; left: 50%; transform: translateX(-50%); width: auto; height: min(120px, 32%); aspect-ratio: 1; pointer-events: none; overflow: visible; }
+.bt-path { fill: none; stroke: var(--line); stroke-width: 2.4; stroke-linecap: round; }
+.bt-dot { fill: var(--line); }
+.bt-dot.on { fill: var(--accent); }
+.bt-num { fill: var(--muted); font: 700 10px var(--font-display), sans-serif; text-anchor: middle; }
+.bt-tip { fill: var(--accent); }
+.rpad .keys.piano { height: auto; flex: 1; min-height: 0; }
+.rlab { font: 600 9px var(--font-body), sans-serif; text-anchor: middle; fill: var(--muted); }
+.back { align-self: flex-start; background: none; border: 0; color: var(--muted); font: inherit; font-weight: 600; font-size: 15px; padding: 4px 0; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; }
+.back svg { width: 18px; height: 18px; }
+.mode-card .prog { display: block; margin-top: 4px; font-size: 12px; font-weight: 600; color: var(--accent); }
+.rname { font: 700 9px var(--font-body), sans-serif; text-anchor: middle; fill: var(--muted); }
+.rpager { position: absolute; top: 8px; right: 8px; display: flex; align-items: center; gap: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 2px; z-index: 3; }
+.rpager button { width: 34px; height: 34px; border: 0; border-radius: 50%; background: none; color: var(--ink); font-size: 20px; font-weight: 700; cursor: pointer; }
+.rpager button:disabled { opacity: .3; }
+.rpager span { min-width: 40px; text-align: center; font-size: 13px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.rpad .keys.piano .wrow { grid-template-columns: repeat(14, minmax(0, 1fr)); }
+.rpad .keys.piano .wk { font-size: 10px; padding-bottom: 8px; letter-spacing: -.02em; }
+.rpad .keys.piano .bk { width: 4.4%; border-radius: 0 0 4px 4px; }
 .hud { margin-left: auto; color: var(--muted); font-size: 14px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .hud b { color: var(--ink); font-weight: 600; }
 .icon-btn {
@@ -78,9 +142,9 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .icon-btn svg { width: 24px; height: 24px; }
 
 /* stage */
-.stage-card { flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
-.stage { flex: 1; min-height: 0; display: flex; padding: 8px; }
-.stage svg { width: 100%; height: 100%; display: block; }
+.stage-card { position: relative; flex: 1; min-height: 0; display: flex; flex-direction: column; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; overflow: hidden; }
+.stage { flex: 1; min-height: 0; display: flex; padding: 8px; position: relative; }
+.stage > svg { width: 100%; height: 100%; display: block; }
 .feedback {
   flex: none; min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
   padding: 8px 14px; border-top: 1px solid var(--line); color: var(--muted);
@@ -187,7 +251,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
 .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 52px; padding: 8px 16px; cursor: pointer; }
 .row + .row { border-top: 1px solid var(--line); }
 .row input { width: 22px; height: 22px; accent-color: var(--accent); margin: 0; flex: none; }
-.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 12px 6px; }
 .stat { text-align: center; }
 .stat b { display: block; font-family: var(--font-display); font-size: 22px; font-variant-numeric: tabular-nums; }
 .stat span { font-size: 12px; color: var(--muted); }
@@ -197,12 +261,12 @@ button.bk:active:not(:disabled) { background: var(--accent); }
 .shortcuts { font-size: 13px; color: var(--muted); margin: 0; }
 /* settings: tabs, preview, switches, progress */
 .tabs { flex: none; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; margin-bottom: 10px; }
-.tab { border: none; background: transparent; border-radius: 9px; padding: 10px 4px; font-weight: 600; font-size: 14px; color: var(--muted); transition: background .15s, color .15s; }
+.tab { border: none; background: transparent; border-radius: 9px; padding: 10px 2px; font-weight: 600; font-size: 13px; color: var(--muted); transition: background .15s, color .15s; }
 .tab[aria-selected="true"] { background: var(--accent); color: var(--accent-ink); }
 .preview { flex: none; position: relative; display: block; width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 14px; margin-bottom: 12px; padding: 6px 8px 18px; }
 .preview svg { display: block; width: 100%; height: clamp(80px, 13dvh, 104px); }
 .pv-hint { position: absolute; right: 12px; bottom: 5px; font-size: 11px; color: var(--muted); }
-#presets { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+#presets { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
 #presets .chip { padding: 10px 2px; border-radius: 12px; font-size: 14px; }
 .stat b { font-size: 19px; }
 .pan { display: flex; flex-direction: column; gap: 20px; }
@@ -232,6 +296,29 @@ button.bk:active:not(:disabled) { background: var(--accent); }
 .weak span { background: var(--bad-bg); color: var(--bad); border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 600; }
 .reset[data-armed] { font-weight: 700; }
 .resets { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+/* game modes, ear mode, offline */
+.stage.ear > svg { visibility: hidden; }
+.ear-btn { display: none; position: absolute; inset: 0; margin: auto; width: 140px; height: 140px; border-radius: 50%; border: none; background: var(--accent); color: var(--accent-ink); flex-direction: column; align-items: center; justify-content: center; gap: 6px; font-weight: 600; font-size: 16px; box-shadow: 0 6px 20px rgba(0,0,0,.18); }
+.ear-btn svg { width: 44px; height: 44px; }
+.stage.ear .ear-btn { display: flex; }
+.gamebar { position: absolute; top: 0; left: 0; right: 0; height: 5px; background: var(--line); z-index: 2; }
+.gamebar i { display: block; height: 100%; width: 100%; background: var(--accent); transition: width .2s linear, background .2s; }
+.gamebar.low i { background: var(--bad); }
+.gamecard { position: absolute; inset: 0; z-index: 3; background: var(--panel); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 20px; text-align: center; }
+.gc-title { font-family: var(--font-display); font-weight: 700; font-size: 24px; }
+.gc-big { font-family: var(--font-display); font-weight: 700; font-size: 56px; line-height: 1; color: var(--accent); }
+.gc-text { margin: 0; color: var(--muted); max-width: 300px; }
+.gc-rec { margin: 0; font-weight: 600; }
+.gc-rec.new { color: var(--good); }
+.gc-btns { display: flex; flex-direction: column; gap: 4px; width: 100%; max-width: 280px; margin-top: 8px; }
+.gc-go { border: none; background: var(--accent); color: var(--accent-ink); border-radius: 12px; height: 52px; font-weight: 600; font-size: 17px; }
+.gc-free { background: none; border: none; color: var(--muted); padding: 10px; text-decoration: underline; text-underline-offset: 3px; }
+#mode, #dur { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+#mode .chip:last-child:nth-child(odd), #dur .chip:last-child:nth-child(odd) { grid-column: auto; }
+#mode .chip, #dur .chip { padding-inline: 4px; }
+.records { display: flex; flex-direction: column; gap: 6px; }
+.rec { display: flex; justify-content: space-between; gap: 12px; margin: 0; padding: 10px 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; }
+.offline { margin: 0 0 8px; text-align: center; font-size: 12px; color: var(--good); }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
 </style>
 
@@ -239,7 +326,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
 <body>
 <div class="app" id="app">
   <header class="top">
-    <div class="brand">Solfège</div>
+    <button class="brand" id="homeBtn" type="button" aria-label="Retour au menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg><span id="brandMode">Lecture</span></button>
     <div class="hud" id="hud" aria-live="off"></div>
     <button class="icon-btn" id="openSettings" type="button" aria-label="Réglages" aria-haspopup="dialog">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
@@ -251,11 +338,57 @@ button.bk:active:not(:disabled) { background: var(--accent); }
   </header>
 
   <section class="stage-card" aria-live="polite">
-    <div class="stage" id="stage"><svg id="board" role="img" aria-label="Note à identifier"></svg></div>
+    <div class="gamebar" id="gameBar" hidden><i></i></div>
+    <div class="stage" id="stage"><svg id="board" role="img" aria-label="Note à identifier"></svg>
+      <button class="ear-btn" id="earBtn" type="button" aria-label="Écouter la note">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg>
+        <span id="earLabel">Écouter</span>
+      </button>
+    </div>
+    <div class="rstage" id="rstage" hidden><svg class="battue" id="battue" viewBox="0 0 100 100" aria-hidden="true"></svg><svg id="rboard" viewBox="0 0 360 130" role="img" aria-label="Rythme à lire"></svg><svg class="rprev" id="rboard2" viewBox="0 20 400 85" aria-hidden="true" hidden></svg><div class="rcount" id="rcount" aria-hidden="true"></div><div class="rpager" id="rpager" hidden><button id="rwPrev" type="button" aria-label="Page précédente">‹</button><span id="rwNum"></span><button id="rwNext" type="button" aria-label="Page suivante">›</button></div></div>
+    <div class="gamecard" id="gameCard" hidden></div>
     <div class="feedback" id="feedback"><span>Quel est le nom de cette note ?</span></div>
   </section>
 
   <section class="keys" id="keys" aria-label="Réponse"></section>
+  <section class="rpad" id="rpad" aria-label="Rythme" hidden>
+    <div class="rrow"><button class="rbtn" id="rListen" type="button">Écouter</button><button class="rbtn primary" id="rGo" type="button">Démarrer</button><button class="rbtn" id="rNext" type="button">Suivant</button></div>
+    <button class="tap" id="tapPad" type="button" disabled>Tape ici</button>
+    <div class="keys piano" id="rkeys" hidden></div>
+  </section>
+</div>
+
+<div class="home" id="home">
+  <div class="home-in">
+    <h1>Solfège</h1>
+    <p class="lead">Qu'est-ce que tu veux travailler ?</p>
+    <button class="mode-card" type="button" data-mode="read">
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M3 7h18M3 11h18M3 15h18M3 19h18" opacity=".55"/><ellipse cx="14" cy="11" rx="3" ry="2.2" fill="currentColor" stroke="none"/><path d="M17 11V3"/></svg></span>
+      <span><b>Lecture</b><span class="d">Reconnaître les notes et les accords sur la portée.</span></span>
+    </button>
+    <button class="mode-card" type="button" data-mode="ear">
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5L6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 010 7M18.5 5.5a9 9 0 010 13"/></svg></span>
+      <span><b>Oreille</b><span class="d">Écouter une note ou un accord et le retrouver.</span></span>
+    </button>
+    <button class="mode-card" type="button" data-mode="songs">
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="16" r="2.5" fill="currentColor" stroke="none"/></svg></span>
+      <span><b>Morceaux</b><span class="d">Jouer des airs connus à la main droite : notes et rythme.</span></span>
+    </button>
+    <button class="mode-card" type="button" data-mode="rhythm">
+      <span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M7 18V6M12 18V9M17 18V4"/></svg></span>
+      <span><b>Rythme</b><span class="d">Lire un rythme, le taper ou le jouer au piano en mesure.</span></span>
+    </button>
+  </div>
+</div>
+
+<div class="home" id="songs" hidden>
+  <div class="home-in">
+    <button class="back" id="songsBack" type="button"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg>Menu</button>
+    <h1>Morceaux</h1>
+    <p class="lead">Main droite, versions simplifiées.</p>
+    <div class="chips" id="songWork"></div>
+    <div id="songList" style="display:flex;flex-direction:column;gap:12px"></div>
+  </div>
 </div>
 
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" hidden>
@@ -267,9 +400,9 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       </button>
     </div>
 
-    <div class="tabs" role="tablist" aria-label="Sections des réglages">
+    <div class="tabs" id="tabs" role="tablist" aria-label="Sections des réglages">
       <button class="tab" role="tab" type="button" data-tab="ex" id="tab-ex" aria-controls="pan-ex">Exercice</button>
-      <button class="tab" role="tab" type="button" data-tab="ans" id="tab-ans" aria-controls="pan-ans">Réponse</button>
+      <button class="tab" role="tab" type="button" data-tab="game" id="tab-game" aria-controls="pan-game">Jouer</button>
       <button class="tab" role="tab" type="button" data-tab="prog" id="tab-prog" aria-controls="pan-prog">Progression</button>
     </div>
 
@@ -298,7 +431,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
           <p class="hint" id="contentHint"></p>
         </section>
 
-        <section class="group" aria-labelledby="l-key">
+        <section class="group" id="keyGroup" aria-labelledby="l-key">
           <div class="label" id="l-key">Gamme (armure à la clé)</div>
           <select class="select" id="keySel" aria-labelledby="l-key"></select>
           <p class="hint">L'armure place des ♯ ou des ♭ après la clé. Les notes concernées sont alors altérées sans signe devant.</p>
@@ -311,11 +444,37 @@ button.bk:active:not(:disabled) { background: var(--accent); }
         </section>
       </div>
 
-      <div class="pan" id="pan-ans" role="tabpanel" aria-labelledby="tab-ans" hidden>
+      <div class="pan" id="pan-rx" role="tabpanel" aria-labelledby="tab-ex" hidden>
+        <section class="group" id="rSongGroup" hidden><div class="label">Morceau</div><div class="chips" id="rSong"></div></section>
+        <section class="group" data-gen><div class="label">Je réponds</div><div class="chips" id="rKind"></div></section>
+        <section class="group" data-gen id="rRangeGroup"><div class="label">Notes de la mélodie</div><div class="chips" id="rRange"></div></section>
+        <section class="group" data-gen><div class="label">Préréglages</div><div class="chips" id="rPresets"></div><p class="hint" id="rPresetHint"></p></section>
+        <section class="group" data-gen><div class="label">Mesure</div><div class="chips" id="rMeter"></div></section>
+        <section class="group" id="rWorkGroup" hidden><div class="label">Je travaille</div><div class="chips" id="rWork"></div></section>
+        <section class="group"><div class="label" id="rBarsLabel">Longueur</div><div class="chips" id="rBars"></div></section>
+        <section class="group" data-gen><div class="label">Valeurs de notes</div><div class="chips" id="rVals"></div><p class="hint">Les croches vont par deux. Ajoute les silences et les notes pointées ci-dessous.</p></section>
+        <section class="group"><div class="label">Tempo</div><div class="tempo"><input type="range" id="rBpm" min="40" max="140" step="5" aria-label="Tempo"><b id="rBpmVal"></b></div></section>
+        <section class="rows" aria-label="Options du rythme">
+          <label class="row" data-gen for="rRests"><span>Silences<br><small class="sub">Soupirs, demi-pauses… ne tape pas</small></span><input type="checkbox" class="switch" role="switch" id="rRests"></label>
+          <label class="row" data-gen for="rDots"><span>Notes pointées<br><small class="sub">Blanche pointée, noire pointée + croche</small></span><input type="checkbox" class="switch" role="switch" id="rDots"></label>
+          <label class="row" for="rNames"><span>Noms sous les notes<br><small class="sub">Une aide pour apprendre</small></span><input type="checkbox" class="switch" role="switch" id="rNames"></label>
+          <label class="row" for="rBeat"><span>Battue du chef<br><small class="sub">Le geste qui marque les temps</small></span><input type="checkbox" class="switch" role="switch" id="rBeat"></label>
+          <label class="row" for="rTap"><span>Son à chaque tap ou touche</span><input type="checkbox" class="switch" role="switch" id="rTap"></label>
+        </section>
+      </div>
+
+      <div class="pan" id="pan-game" role="tabpanel" aria-labelledby="tab-game" hidden>
         <section class="group" aria-labelledby="l-display">
           <div class="label" id="l-display">Je réponds avec</div>
           <div class="seg" id="display"></div>
           <p class="hint" id="answerHint"></p>
+        </section>
+
+        <section class="group" aria-labelledby="l-mode">
+          <div class="label" id="l-mode">Mode de jeu</div>
+          <div class="seg" id="mode"></div>
+          <div class="group" id="durGroup"><div class="seg" id="dur"></div></div>
+          <p class="hint" id="modeHint"></p>
         </section>
 
         <section class="rows" aria-label="Options de réponse">
@@ -323,8 +482,6 @@ button.bk:active:not(:disabled) { background: var(--accent); }
           <label class="row" for="letters"><span>Notation C D E F G A B</span><input type="checkbox" class="switch" role="switch" id="letters"></label>
           <label class="row" for="sound" id="rowSound"><span>Jouer la note après la réponse</span><input type="checkbox" class="switch" role="switch" id="sound"></label>
         </section>
-
-        <p class="shortcuts">Clavier d'ordinateur : touches 1 à 7 ou lettres c d e f g a b, Entrée pour valider ou passer à la suite.</p>
       </div>
 
       <div class="pan" id="pan-prog" role="tabpanel" aria-labelledby="tab-prog" hidden>
@@ -338,8 +495,13 @@ button.bk:active:not(:disabled) { background: var(--accent); }
           </div>
         </section>
 
-        <section class="group" aria-labelledby="l-notes">
+        <section class="group" id="recGroup" aria-labelledby="l-rec">
+          <div class="label" id="l-rec">Records</div>
+          <div class="records" id="records"></div>
+        </section>
+        <section class="group" id="notesGroup" aria-labelledby="l-notes">
           <div class="label" id="l-notes">Mes notes (clés choisies)</div>
+          
           <div class="tiles">
             <div class="tile"><b id="pMaster">–</b><span>Acquises</span></div>
             <div class="tile"><b id="pRate">–</b><span>Réussite</span></div>
@@ -362,7 +524,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       </div>
     </div>
 
-    <div class="sheet-foot"><button class="done" id="done" type="button">Terminé</button></div>
+    <div class="sheet-foot"><p class="offline" id="offlineNote" hidden>Disponible hors ligne</p><button class="done" id="done" type="button">Terminé</button></div>
   </div>
 </div>
 
@@ -402,7 +564,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     return out;
   })();
 
-  var st = { clefs: ['sol'], focus: true, answer: 'names', showNames: true, content: 'note', size: 3, key: 0, acc: false, mod: 0, ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
+  var st = { clefs: ['sol'], game: 'free', dur: 60, cnt: 20, ear: false, focus: true, answer: 'names', showNames: true, content: 'note', size: 3, key: 0, acc: false, mod: 0, ledger: false, letters: false, sound: false, correct: 0, total: 0, streak: 0, best: 0 };
   try {
     var saved = JSON.parse(localStorage.getItem('lecture-notes') || 'null');
     if (saved) {
@@ -414,26 +576,34 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       if (saved.size === 4) st.size = 4;
       if (typeof saved.key === 'number' && saved.key >= -7 && saved.key <= 7) st.key = Math.round(saved.key);
       st.acc = !!saved.acc; if (saved.focus === false) st.focus = false;
+      if (saved.game === 'time' || saved.game === 'count') st.game = saved.game;
+      if ([30, 60, 120].indexOf(saved.dur) >= 0) st.dur = saved.dur;
+      if ([10, 20, 50].indexOf(saved.cnt) >= 0) st.cnt = saved.cnt;
+      st.ear = !!saved.ear;
+      if (st.ear && st.answer === 'mic') st.answer = 'names';
       st.ledger = !!saved.ledger; st.letters = !!saved.letters; st.sound = !!saved.sound;
       st.best = +saved.best || 0;
     }
   } catch (e) {}
   function save() {
-    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, answer: st.answer, showNames: st.showNames, content: st.content, size: st.size, focus: st.focus, key: st.key, acc: st.acc, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
+    try { localStorage.setItem('lecture-notes', JSON.stringify({ clefs: st.clefs, answer: st.answer, showNames: st.showNames, content: st.content, size: st.size, focus: st.focus, game: st.game, dur: st.dur, cnt: st.cnt, ear: st.ear, key: st.key, acc: st.acc, ledger: st.ledger, letters: st.letters, sound: st.sound, best: st.best })); } catch (e) {}
   }
 
   var PROG_KEY = 'lecture-notes-prog', prog = { items: {} }, miss = {}, qNum = 0;
   try { var sp = JSON.parse(localStorage.getItem(PROG_KEY) || 'null'); if (sp && sp.items && typeof sp.items === 'object') prog = sp; } catch (e) {}
+  if (!prog.rec || typeof prog.rec !== 'object') prog.rec = {};
   function saveProg() { try { localStorage.setItem(PROG_KEY, JSON.stringify(prog)); } catch (e) {} }
 
   var $ = function (id) { return document.getElementById(id); };
   var board = $('board'), stage = $('stage'), fb = $('feedback'), keysEl = $('keys'), sheet = $('sheet'), app = $('app');
-  var cur = null, sel = [], locked = false, timer = null, last = null, audio = null;
+  var rmode = false, smode = false;
+  function rhPiano() { return smode || rh.kind === 'piano'; }
+  var cur = null, sel = [], locked = false, timer = null, last = null, audio = null, audioOK = false;
 
   function names() { return st.letters ? NAMES_EN : NAMES_FR; }
   function yOf(p) { return BASE_Y - p * HALF; }
   function range() { return st.ledger ? [-4, 12] : [-1, 9]; }
-  function needsAlter() { return st.key !== 0 || st.acc; }
+  function needsAlter() { return (st.key !== 0 && !st.ear) || st.acc; }
   function accSym(a) { return a === 1 ? '♯' : a === -1 ? '♭' : ''; }
   function noteName(n) { return names()[n.step] + accSym(n.alter); }
   function pcName(pc) {
@@ -443,6 +613,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
   }
   function keyAlter(step) {
     var n = Math.abs(st.key);
+    if (st.ear) return 0;
     if (st.key > 0 && SHARP_STEPS.slice(0, n).indexOf(step) >= 0) return 1;
     if (st.key < 0 && FLAT_STEPS.slice(0, n).indexOf(step) >= 0) return -1;
     return 0;
@@ -553,7 +724,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     var rg = range(), isChord = st.content === 'chord' || (st.content === 'mix' && Math.random() < 0.5);
     var size = isChord ? st.size : 1, hiRoot = rg[1] - (size - 1) * 2, cands = [], total = 0, k;
     st.clefs.forEach(function (c) {
-      for (var p = rg[0]; p <= hiRoot; p++) cands.push({ c: c, p: p, key: c + ':' + p + ':' + size });
+      for (var p = rg[0]; p <= hiRoot; p++) cands.push({ c: c, p: p, key: (st.ear ? 'e:' : '') + c + ':' + p + ':' + size });
     });
     if (avoidKey && cands.length > 1) cands = cands.filter(function (x) { return x.key !== avoidKey; });
     cands.forEach(function (x) { x.w = weighted ? itemWeight(x.key) : 1; total += x.w; });
@@ -663,43 +834,58 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     var need = cur.pcs.length, html, mic_ = st.answer === 'mic';
     fb.className = 'feedback';
     if (need === 1) {
-      html = '<span>' + (mic_ ? 'Joue cette note sur ton piano.' : 'Quel est le nom de cette note ?') + '</span>' + (mic_ ? '<button class="skip" type="button" id="skipBtn">Passer</button>' : '');
+      html = '<span>' + (mic_ ? 'Joue cette note sur ton piano.' : st.ear ? 'Écoute la note : quel est son nom ?' : 'Quel est le nom de cette note ?') + '</span>' + (mic_ ? '<button class="skip" type="button" id="skipBtn">Passer</button>' : '');
     } else {
       var chosen = sel.length ? labels(sel) + (mic_ ? ' (' + sel.length + '/' + need + ')' : '') : (mic_ ? 'Dans n\'importe quel ordre' : 'Touche-les une par une');
-      html = '<span>' + (mic_ ? 'Joue les ' + need + ' notes, une par une' : 'Trouve les ' + need + ' notes de l\'accord') + '<small>' + chosen + '</small></span><span class="btns">' +
+      html = '<span>' + (mic_ ? 'Joue les ' + need + ' notes, une par une' : st.ear ? 'Écoute et trouve les ' + need + ' notes' : 'Trouve les ' + need + ' notes de l\'accord') + '<small>' + chosen + '</small></span><span class="btns">' +
         (sel.length ? '<button class="skip" type="button" id="clearBtn">Effacer</button>' : '') +
         (mic_ ? '<button class="skip" type="button" id="skipBtn">Passer</button>' : '<button class="next" type="button" id="okBtn"' + (sel.length === need ? '' : ' disabled') + '>Valider</button>') + '</span>';
     }
     fb.innerHTML = html;
     var b;
-    if ((b = $('skipBtn'))) b.addEventListener('click', next);
+    if ((b = $('skipBtn'))) b.addEventListener('click', function () { if (run.state === 'running') answer([]); else next(); });
     if ((b = $('clearBtn'))) b.addEventListener('click', function () { sel = []; updateSel(); askUI(); });
     if ((b = $('okBtn'))) b.addEventListener('click', function () { if (sel.length === cur.pcs.length) answer(sel.slice()); });
   }
 
   function next() {
+    if (run.state === 'running' && st.game === 'count' && run.n >= runTotal()) { endRun(); return; }
     clearTimeout(timer);
+    if (gameOn()) { if (run.state === 'free' || (!sheet.hidden && run.state !== 'idle')) resetRun(); }
+    else if (run.state !== 'free') resetRun();
     cur = buildQuestion(last && last.key, true); last = { key: cur.key }; cur.t0 = performance.now(); qNum++;
-    locked = false; sel = []; st.mod = 0; mic.pending = null;
+    locked = gameOn() && run.state !== 'running';
+    sel = []; st.mod = 0; mic.pending = null;
     if (mic.on) { micNoteShow('–'); micMsg(cur.pcs.length > 1 ? 'Joue les notes.' : 'Joue la note.'); }
-    stage.className = 'stage';
+    stage.className = 'stage' + (st.ear ? ' ear' : '');
+    $('earLabel').textContent = 'Écouter';
     Array.prototype.forEach.call(keysEl.querySelectorAll('[data-pc], [data-step]'), function (k) { k.classList.remove('good', 'bad', 'sel'); k.disabled = false; });
     updateMod();
     askUI();
     renderStaff(false);
+    if (st.ear && !locked && audioOK) { var q = cur; setTimeout(function () { if (cur === q && !locked) play(q.notes); }, 350); }
   }
 
-  function play(notes) {
+  function ensureAudio() {
     try {
       audio = audio || new (window.AudioContext || window.webkitAudioContext)();
       if (audio.state === 'suspended') audio.resume();
-      var t = audio.currentTime, vol = 0.28 / Math.sqrt(notes.length);
+    } catch (e) { audio = null; }
+    return audio;
+  }
+  // a rough piano-like tone: a few decaying partials
+  function play(notes) {
+    if (!ensureAudio()) return;
+    try {
+      var t = audio.currentTime + 0.02, vol = 0.3 / Math.sqrt(notes.length);
       notes.forEach(function (n) {
-        var midi = 12 * (Math.floor(n.d / 7) + 1) + SEMI[n.step] + n.alter;
-        var o = audio.createOscillator(), g = audio.createGain();
-        o.type = 'triangle'; o.frequency.value = 440 * Math.pow(2, (midi - 69) / 12);
-        g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.02); g.gain.exponentialRampToValueAtTime(0.001, t + 1.3);
-        o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + 1.35);
+        var midi = 12 * (Math.floor(n.d / 7) + 1) + SEMI[n.step] + n.alter, f = 440 * Math.pow(2, (midi - 69) / 12);
+        [[1, 1], [2, 0.42], [3, 0.2], [4, 0.1]].forEach(function (h) {
+          var o = audio.createOscillator(), g = audio.createGain(), dur = 1.7 / Math.sqrt(h[0]);
+          o.type = 'sine'; o.frequency.value = f * h[0];
+          g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol * h[1], t + 0.006); g.gain.exponentialRampToValueAtTime(0.0008, t + dur);
+          o.connect(g); g.connect(audio.destination); o.start(t); o.stop(t + dur + 0.05);
+        });
       });
     } catch (e) {}
   }
@@ -718,6 +904,8 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     if (ok) { it.ok++; it.box = Math.min(4, it.box + 1); it.ms = it.ms ? Math.round(it.ms * 0.6 + dt * 0.4) : dt; }
     else { it.box = 0; miss[cur.key] = qNum; }
     saveProg();
+    var fast = run.state === 'running';
+    if (fast) { run.n++; run.ms += dt; if (ok) { run.ok++; run.streak++; run.best = Math.max(run.best, run.streak); } else run.streak = 0; }
     Array.prototype.forEach.call(keysEl.querySelectorAll('[data-pc], [data-step]'), function (k) {
       k.disabled = true; k.classList.remove('sel');
       if (k.dataset.pc !== undefined) {
@@ -731,31 +919,39 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     });
     stage.className = 'stage ' + (ok ? 'good' : 'bad');
     renderStaff(true);
-    if (st.sound && st.answer !== 'mic') play(cur.notes);
+    if (st.sound && st.answer !== 'mic' && !st.ear) play(cur.notes);
     var target = cur.notes.map(noteName).join(' · '), cname = targetChordName(), uname = ok ? '' : userChordName(entries);
     if (ok) {
       fb.className = 'feedback good';
       fb.innerHTML = cname ? '<span><strong>Juste : ' + cname + '</strong><small>' + target + '</small></span>' : '<strong>Juste : ' + target + '</strong>';
-      timer = setTimeout(next, cur.notes.length > 1 ? 2200 : st.answer === 'mic' ? 1300 : 900);
+      timer = setTimeout(next, fast ? (cur.notes.length > 1 ? 1000 : 450) : (cur.notes.length > 1 ? 2200 : st.answer === 'mic' ? 1300 : 900));
     } else {
       fb.className = 'feedback bad';
-      fb.innerHTML = '<span><strong>C\'était ' + (cname || target) + '</strong><small>' + (cname ? target + ' · ' : '') + 'tu as ' + (st.answer === 'mic' ? 'joué ' : 'répondu ') + labels(entries) + (uname ? ' (' + uname + ')' : '') + '</small></span><button class="next" type="button" id="nextBtn">Suivant</button>';
+      fb.innerHTML = '<span><strong>C\'était ' + (cname || target) + '</strong><small>' + (cname ? target + ' · ' : '') + (entries.length ? 'tu as ' + (st.answer === 'mic' ? 'joué ' : 'répondu ') + labels(entries) + (uname ? ' (' + uname + ')' : '') : 'tu as passé') + '</small></span><button class="next" type="button" id="nextBtn">Suivant</button>';
       var nb = $('nextBtn'); nb.addEventListener('click', next); nb.focus();
+      if (fast) timer = setTimeout(next, cur.notes.length > 1 ? 2200 : 1400);
     }
     if (st.answer === 'mic') micMsg('Note reçue.');
     stats();
+    if (fast && st.game === 'count' && run.n >= runTotal()) { clearTimeout(timer); timer = setTimeout(endRun, ok ? 700 : 1400); }
   }
 
   function stats() {
+    if (rmode) {
+      $('s-score').textContent = rh.ok + '/' + rh.total;
+      $('s-acc').textContent = rh.total ? Math.round(100 * rh.ok / rh.total) + ' %' : '–';
+      $('s-streak').textContent = rh.streak; $('s-best').textContent = rh.best;
+      updateHud(); return;
+    }
     $('s-score').textContent = st.correct + '/' + st.total;
     $('s-acc').textContent = st.total ? Math.round(100 * st.correct / st.total) + ' %' : '–';
     $('s-streak').textContent = st.streak;
     $('s-best').textContent = st.best;
-    $('hud').innerHTML = '<b>' + st.correct + '/' + st.total + '</b> · série <b>' + st.streak + '</b>';
+    updateHud();
   }
 
   /* ---------- settings ---------- */
-  var tab = 'ex', pv = { sig: '', q: null }, heatSel = '';
+  var tab = 'ex', pv = { sig: '', q: null }, heatSel = '', heatKind = 'r';
   var PRESETS = [
     { label: 'Débutant', hint: 'Clé de sol, notes seules, sans altération.', cfg: { clefs: ['sol'], content: 'note', size: 3, key: 0, acc: false, ledger: false } },
     { label: 'Pianiste', hint: 'Clés de sol et de fa, notes et accords de 3 notes, lignes supplémentaires.', cfg: { clefs: ['sol', 'fa'], content: 'mix', size: 3, key: 0, acc: false, ledger: true } },
@@ -784,7 +980,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       el.appendChild(b);
     });
   }
-  function refresh() { buildSettings(); save(); buildKeys(); next(); }
+  function refresh() { buildSettings(); save(); if (rmode) { rhNew(); return; } buildKeys(); next(); }
 
   function renderPreview() {
     var sig = JSON.stringify([st.clefs, st.content, st.size, st.key, st.acc, st.ledger]);
@@ -801,19 +997,20 @@ button.bk:active:not(:disabled) { background: var(--accent); }
   }
   function fmtMs(ms) { return (ms / 1000).toFixed(1).replace('.', ',') + ' s'; }
   function itemInfo(key) {
-    var t = key.split(':'), c = t[0], p = +t[1], d = CLEFS[c].bottom + p, step = ((d % 7) + 7) % 7;
+    var t = key.replace(/^e:/, '').split(':'), c = t[0], p = +t[1], d = CLEFS[c].bottom + p, step = ((d % 7) + 7) % 7;
     return { clef: c, p: p, step: step, name: names()[step], clefName: CLEFS[c].name };
   }
   function buildProgress() {
     var rg = range(), heat = $('heat'), total = 0, mastered = 0, sOk = 0, sN = 0, msSum = 0, msN = 0, weak = [];
     heat.innerHTML = '';
+    heatKind = st.ear ? 'e' : 'r';
     st.clefs.forEach(function (c) {
       var blk = document.createElement('div'), ttl = document.createElement('div'), grid = document.createElement('div'), sc = document.createElement('div');
       ttl.className = 'htitle'; ttl.textContent = CLEFS[c].name.charAt(0).toUpperCase() + CLEFS[c].name.slice(1);
       grid.className = 'hgrid';
       sc.className = 'hscale'; sc.innerHTML = '<span>grave</span><span>aigu</span>';
       for (var p = -4; p <= 12; p++) {
-        var key = c + ':' + p + ':1', it = prog.items[key], inf = itemInfo(key), inR = p >= rg[0] && p <= rg[1], status = itemStatus(it);
+        var key = (heatKind === 'e' ? 'e:' : '') + c + ':' + p + ':1', it = prog.items[key], inf = itemInfo(key), inR = p >= rg[0] && p <= rg[1], status = itemStatus(it);
         var b = document.createElement('button');
         b.type = 'button'; b.className = 'hcell ' + status + (inR ? '' : ' off'); b.textContent = inf.name; b.dataset.key = key;
         b.setAttribute('aria-label', inf.name + ', ' + inf.clefName);
@@ -878,8 +1075,24 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       : 'Retrouve chaque note de l\'accord, puis touche Valider.');
     $('keySel').value = String(st.key);
     SWITCHES.forEach(function (id) { $(id).checked = !!st[id]; });
-    seg($('display'), [['names', 'Noms des notes'], ['piano', 'Touches de piano'], ['mic', 'Mon piano (micro)']], st.answer,
+    seg($('display'), st.ear ? [['names', 'Noms des notes'], ['piano', 'Touches de piano']] : [['names', 'Noms des notes'], ['piano', 'Touches de piano'], ['mic', 'Mon piano (micro)']], st.answer,
       function (v) { st.answer = v; if (v === 'mic') micStart(); else micStop(); refresh(); });
+    var modeName = smode ? 'Morceaux' : rmode ? 'Rythme' : st.ear ? 'Oreille' : 'Lecture';
+    $('brandMode').textContent = modeName;
+    $('sheetTitle').textContent = 'Réglages · ' + modeName;
+    if (rmode) { rhBuildSettings(); if (tab === 'game') tab = 'ex'; }
+    $('tab-game').hidden = rmode; $('tabs').classList.toggle('two', rmode);
+    $('recGroup').hidden = rmode; $('notesGroup').hidden = rmode;
+    $('l-clefs').textContent = st.ear ? 'Registre' : 'Clés';
+    $('l-content').textContent = st.ear ? 'Ce que tu entends' : 'Ce qui s\'affiche';
+    $('keyGroup').hidden = st.ear;
+    seg($('mode'), [['free', 'Libre'], ['time', 'Chrono'], ['count', 'Défi']], st.game, function (v) { st.game = v; refresh(); });
+    $('durGroup').hidden = st.game === 'free';
+    if (st.game === 'time') seg($('dur'), [[30, '30 s'], [60, '60 s'], [120, '2 min']], st.dur, function (v) { st.dur = v; refresh(); });
+    else if (st.game === 'count') seg($('dur'), [[10, '10 notes'], [20, '20 notes'], [50, '50 notes']], st.cnt, function (v) { st.cnt = v; refresh(); });
+    $('modeHint').textContent = st.game === 'time' ? 'Un maximum de bonnes réponses avant la fin du temps. Les erreurs ne retirent rien, mais font perdre du temps.'
+      : st.game === 'count' ? 'Un nombre fixe de notes : ton score est le nombre de bonnes réponses, puis le temps total.'
+      : 'Sans limite de temps, à ton rythme.';
     $('answerHint').textContent = st.answer === 'mic'
       ? 'Pose le téléphone près du piano, dans un endroit calme, et joue la note affichée. Seul le nom de la note compte, pas l\'octave.'
       : st.answer === 'piano' ? 'Touche la touche qui correspond à la note. Les touches noires servent dès qu\'il y a des altérations.'
@@ -891,12 +1104,15 @@ button.bk:active:not(:disabled) { background: var(--accent); }
       b.setAttribute('aria-selected', on); b.tabIndex = on ? 0 : -1;
       $('pan-' + b.dataset.tab).hidden = !on;
     });
-    $('previewBox').hidden = tab !== 'ex';
-    if (tab === 'ex') renderPreview();
+    $('previewBox').hidden = tab !== 'ex' || rmode;
+    if (rmode) { $('pan-ex').hidden = true; $('pan-rx').hidden = tab !== 'ex'; } else $('pan-rx').hidden = true;
+    if (tab === 'ex' && !rmode) renderPreview();
     if (tab === 'prog') buildProgress();
+    if (tab === 'prog') buildRecords();
   }
 
   function openSheet() {
+    if (rmode) rhStop();
     sheet.hidden = false; app.setAttribute('inert', ''); buildSettings(); stats();
     $('closeSettings').focus();
   }
@@ -936,11 +1152,119 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     });
   }
   armConfirm($('reset'), 'Remettre le score à zéro', function () { st.correct = st.total = st.streak = 0; st.best = 0; save(); stats(); next(); });
-  armConfirm($('resetProg'), 'Effacer ma progression par note', function () { prog = { items: {} }; miss = {}; heatSel = ''; saveProg(); buildSettings(); next(); });
+  armConfirm($('resetProg'), 'Effacer ma progression par note', function () { prog.items = {}; miss = {}; heatSel = ''; saveProg(); buildSettings(); next(); });
+
+  /* ---------- game modes: chrono and défi ---------- */
+  var run = { state: 'free', el: 0, last: 0, n: 0, ok: 0, streak: 0, best: 0, ms: 0, tid: null };
+  function gameOn() { return st.game !== 'free'; }
+  function runTotal() { return st.game === 'time' ? st.dur * 1000 : st.cnt; }
+  function recKey() { return (st.game === 'time' ? 'time:' + st.dur : 'count:' + st.cnt) + (st.ear ? ':e' : ''); }
+  function clockLeft(ms) { var s = Math.max(0, Math.ceil(ms / 1000)); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function clockEl(ms) { var s = Math.round(ms / 1000); return Math.floor(s / 60) + ':' + ('0' + (s % 60)).slice(-2); }
+  function recLabel(key) { var t = key.split(':'); return t[0] === 'time' ? 'Chrono ' + (+t[1] >= 120 ? '2 min' : t[1] + ' s') : 'Défi ' + t[1] + ' notes'; }
+  function recText(key, r) {
+    var t = key.split(':');
+    return t[0] === 'time' ? r.ok + ' bonne' + (r.ok > 1 ? 's' : '') + ' réponse' + (r.ok > 1 ? 's' : '') : r.ok + '/' + t[1] + ' en ' + clockEl(r.el);
+  }
+  function stopTick() { clearInterval(run.tid); run.tid = null; }
+
+  function resetRun() {
+    stopTick(); clearTimeout(timer);
+    run = { state: gameOn() ? 'idle' : 'free', el: 0, last: 0, n: 0, ok: 0, streak: 0, best: 0, ms: 0, tid: null };
+    showCard(); updateHud();
+  }
+  function startRun() {
+    if (!gameOn()) return;
+    stopTick(); clearTimeout(timer);
+    run = { state: 'running', el: 0, last: performance.now(), n: 0, ok: 0, streak: 0, best: 0, ms: 0, tid: null };
+    showCard();
+    next();
+    run.tid = setInterval(tick, 200);
+    updateHud();
+  }
+  function tick() {
+    var now = performance.now(), d = Math.min(now - run.last, 1000);
+    run.last = now;
+    if (run.state !== 'running' || !sheet.hidden || document.hidden) return;
+    run.el += d;
+    updateHud();
+    if (st.game === 'time' && run.el >= runTotal()) endRun();
+  }
+  function updateHud() {
+    var h = $('hud'), bar = $('gameBar');
+    if (gameOn() && run.state === 'running') {
+      if (st.game === 'time') {
+        var left = runTotal() - run.el;
+        h.innerHTML = '<b>' + clockLeft(left) + '</b> · ' + run.ok + ' juste' + (run.ok > 1 ? 's' : '');
+        bar.firstElementChild.style.width = Math.max(0, 100 * left / runTotal()) + '%';
+        bar.classList.toggle('low', left < 10000);
+      } else {
+        h.innerHTML = '<b>' + run.n + '/' + runTotal() + '</b> · ' + clockEl(run.el);
+        bar.firstElementChild.style.width = (100 * run.n / runTotal()) + '%';
+        bar.classList.remove('low');
+      }
+    } else if (rmode) h.innerHTML = '<b>' + rh.ok + '/' + rh.total + '</b> · série <b>' + rh.streak + '</b>';
+    else h.innerHTML = '<b>' + st.correct + '/' + st.total + '</b> · série <b>' + st.streak + '</b>';
+  }
+  function endRun() {
+    if (run.state !== 'running') return;
+    stopTick(); clearTimeout(timer);
+    run.state = 'over'; locked = true;
+    var key = recKey(), prev = prog.rec[key], isRec = false;
+    if (run.ok > 0) {
+      if (st.game === 'time') isRec = !prev || run.ok > prev.ok;
+      else isRec = !prev || run.ok > prev.ok || (run.ok === prev.ok && run.el < prev.el);
+    }
+    if (isRec) { prog.rec[key] = st.game === 'time' ? { ok: run.ok, n: run.n } : { ok: run.ok, n: run.n, el: Math.round(run.el) }; saveProg(); }
+    run.isRec = isRec;
+    showCard(); updateHud();
+  }
+  function showCard() {
+    var card = $('gameCard'), bar = $('gameBar');
+    bar.hidden = !(gameOn() && run.state === 'running');
+    if (!gameOn() || run.state === 'running' || run.state === 'free') { card.hidden = true; return; }
+    var key = recKey(), prev = prog.rec[key], h = '';
+    if (run.state === 'idle') {
+      h += '<div class="gc-title">' + (st.game === 'time' ? 'Chrono · ' + (st.dur >= 120 ? '2 minutes' : st.dur + ' secondes') : 'Défi · ' + st.cnt + ' notes') + '</div>';
+      h += '<p class="gc-text">' + (st.game === 'time' ? 'Réponds à un maximum de notes avant la fin du temps.' : 'Va le plus vite possible, avec le moins d\'erreurs possible.') + '</p>';
+      h += '<p class="gc-rec">' + (prev ? 'Record : ' + recText(key, prev) : 'Pas encore de record') + '</p>';
+    } else {
+      var acc = run.n ? Math.round(100 * run.ok / run.n) : 0, avg = run.n ? (run.ms / run.n / 1000).toFixed(1).replace('.', ',') + ' s' : '–';
+      h += '<div class="gc-title">Terminé</div>';
+      h += st.game === 'time'
+        ? '<div class="gc-big">' + run.ok + '</div><p class="gc-text">bonne' + (run.ok > 1 ? 's' : '') + ' réponse' + (run.ok > 1 ? 's' : '') + ' sur ' + run.n + '</p>'
+        : '<div class="gc-big">' + run.ok + '/' + st.cnt + '</div><p class="gc-text">en ' + clockEl(run.el) + '</p>';
+      h += '<p class="gc-text">' + acc + ' % de réussite · ' + avg + ' par réponse · série max ' + run.best + '</p>';
+      h += run.isRec ? '<p class="gc-rec new">Nouveau record !</p>' : (prev ? '<p class="gc-rec">Record : ' + recText(key, prev) + '</p>' : '');
+    }
+    h += '<div class="gc-btns"><button class="gc-go" type="button" id="gcGo">' + (run.state === 'idle' ? 'Démarrer' : 'Rejouer') + '</button><button class="gc-free" type="button" id="gcFree">Revenir au mode libre</button></div>';
+    card.innerHTML = h; card.hidden = false;
+    $('gcGo').addEventListener('click', startRun);
+    $('gcFree').addEventListener('click', function () { st.game = 'free'; save(); resetRun(); next(); });
+  }
+  function buildRecords() {
+    var box = $('records'), keys = Object.keys(prog.rec).filter(function (k) { return (k.split(':')[2] === 'e') === !!st.ear; }).sort();
+    box.innerHTML = '';
+    if (!keys.length) { box.innerHTML = '<p class="hint">Aucun record pour l\'instant.</p>'; return; }
+    keys.forEach(function (k) {
+      var p = document.createElement('p'); p.className = 'rec';
+      p.innerHTML = '<span>' + recLabel(k) + '</span><b>' + recText(k, prog.rec[k]) + '</b>';
+      box.appendChild(p);
+    });
+  }
+
+  /* ---------- ear mode ---------- */
+  $('earBtn').addEventListener('click', function () {
+    if (locked || !cur) return;
+    play(cur.notes); $('earLabel').textContent = 'Réécouter';
+  });
+  // browsers only allow sound after a touch: remember that one happened
+  document.addEventListener('pointerdown', function () { ensureAudio(); audioOK = true; }, { passive: true });
 
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape' && !sheet.hidden) { closeSheet(); return; }
-    if (!sheet.hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (!sheet.hidden || !$('home').hidden || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (rmode) { if (e.code === 'Space' && !rhPiano()) { e.preventDefault(); rhTap(); } return; }
     if (e.key === 'Enter') {
       if (locked && e.target.tagName !== 'BUTTON') next();
       else if (!locked && sel.length && sel.length === cur.pcs.length && st.answer !== 'mic' && e.target.tagName !== 'BUTTON') answer(sel.slice());
@@ -1059,8 +1383,478 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     lastTouch = now;
   }, { passive: false });
 
-  buildSettings(); buildKeys(); stats(); next();
+  /* ---------- rythme ---------- */
+  var RH_KEY = 'lecture-rythme';
+  var rh = { full: false, sbars: 2, song: 'bday', phrase: 0, songs: {}, names: false, kind: 'tap', range: 'a', beat: true, vals: ['h', 'q'], rests: false, dots: false, meter: '4/4', bars: 1, bpm: 60, tapSound: true, ok: 0, total: 0, streak: 0, best: 0 };
+  try { var rsv = JSON.parse(localStorage.getItem(RH_KEY)); if (rsv) Object.keys(rh).forEach(function (k) { if (rsv[k] !== undefined) rh[k] = rsv[k]; }); } catch (e) {}
+  function rhSave() { try { localStorage.setItem(RH_KEY, JSON.stringify(rh)); } catch (e) {} }
+  var rq = null, rrun = null, rhLastSig = '';
+  var RH_BEATS = { '2/4': 2, '3/4': 3, '4/4': 4 };
+  var RH_PRESETS = [
+    { label: 'Débutant', hint: 'Blanches et noires, une mesure, tempo lent.', cfg: { vals: ['h', 'q'], rests: false, dots: false, bars: 1, bpm: 60 } },
+    { label: 'Moyen', hint: 'Avec des croches, une mesure.', cfg: { vals: ['h', 'q', 'e'], rests: false, dots: false, bars: 1, bpm: 70 } },
+    { label: 'Avancé', hint: 'Rondes, croches, silences, notes pointées, deux mesures.', cfg: { vals: ['w', 'h', 'q', 'e'], rests: true, dots: true, bars: 2, bpm: 80 } }
+  ];
+  var RH_VALS = [['w', 'Ronde'], ['h', 'Blanche'], ['q', 'Noire'], ['e', 'Croche']];
+
+  function rhGenBar(L, base, ev, grp) {
+    var pos = 0;
+    function has(v) { return rh.vals.indexOf(v) >= 0; }
+    while (pos < L - 1e-6) {
+      var rem = L - pos, o = [];
+      if (has('w') && L === 4 && pos === 0) o.push(['w', 2]);
+      if (has('h') && rem >= 2 && pos % 2 === 0) o.push(['h', 3]);
+      if (has('h') && rh.dots && rem >= 3 && pos === 0) o.push(['hd', 1.5]);
+      if (has('q')) o.push(['q', 4]);
+      if (has('e')) o.push(['ee', 3]);
+      if (has('e') && rh.dots && rem >= 2) o.push(['dqe', 2]);
+      if (rh.rests) {
+        if (has('q') || has('h')) o.push(['rq', 1.4]);
+        if (has('h') && rem >= 2 && pos % 2 === 0) o.push(['rh', 0.8]);
+        if (has('e')) o.push(['re', 1.2]);
+      }
+      if (!o.length) o.push(['q', 1]);
+      var tot = 0; o.forEach(function (x) { tot += x[1]; });
+      var r = Math.random() * tot, pick = o[o.length - 1][0];
+      for (var i = 0; i < o.length; i++) { r -= o[i][1]; if (r <= 0) { pick = o[i][0]; break; } }
+      var t = base + pos;
+      if (pick === 'w') { ev.push({ t: t, d: 4, v: 'w', n: 1 }); pos += 4; }
+      else if (pick === 'h') { ev.push({ t: t, d: 2, v: 'h', n: 1 }); pos += 2; }
+      else if (pick === 'hd') { ev.push({ t: t, d: 3, v: 'h', dot: 1, n: 1 }); pos += 3; }
+      else if (pick === 'q') { ev.push({ t: t, d: 1, v: 'q', n: 1 }); pos += 1; }
+      else if (pick === 'ee') { grp.n++; ev.push({ t: t, d: .5, v: 'e', n: 1, g: grp.n }); ev.push({ t: t + .5, d: .5, v: 'e', n: 1, g: grp.n }); pos += 1; }
+      else if (pick === 'dqe') { ev.push({ t: t, d: 1.5, v: 'q', dot: 1, n: 1 }); ev.push({ t: t + 1.5, d: .5, v: 'e', n: 1 }); pos += 2; }
+      else if (pick === 'rq') { ev.push({ t: t, d: 1, v: 'q', n: 0 }); pos += 1; }
+      else if (pick === 'rh') { ev.push({ t: t, d: 2, v: 'h', n: 0 }); pos += 2; }
+      else if (pick === 're') { ev.push({ t: t, d: .5, v: 'e', n: 0 }); ev.push({ t: t + .5, d: .5, v: 'e', n: 1 }); pos += 1; }
+    }
+  }
+  var RH_RANGES = { a: [-2, 2, 'Do – Sol'], b: [-2, 5, 'Do – Do (octave)'], c: [0, 9, 'Mi – Sol aigu'] };
+  var PCN = ['Do', 'Do♯', 'Ré', 'Ré♯', 'Mi', 'Fa', 'Fa♯', 'Sol', 'Sol♯', 'La', 'La♯', 'Si'];
+  function rhPitches(ev) {
+    var rg = RH_RANGES[rh.range] || RH_RANGES.a, prev = null, rep2 = 0;
+    ev.forEach(function (e) {
+      if (!e.n) return;
+      var p, tries = 0;
+      do {
+        if (prev === null) p = rg[0] + Math.floor(Math.random() * (rg[1] - rg[0] + 1));
+        else { var step = [-2, -1, -1, 0, 1, 1, 2, 3, -3][Math.floor(Math.random() * 9)]; p = prev + step; }
+        tries++;
+      } while ((p < rg[0] || p > rg[1] || (p === prev && rep2 >= 1)) && tries < 40);
+      if (p < rg[0] || p > rg[1]) p = rg[0];
+      rep2 = p === prev ? rep2 + 1 : 0; prev = p;
+      e.p = p; e.pc = SEMI[(((30 + p) % 7) + 7) % 7]; e.oct = Math.floor((30 + p) / 7);
+    });
+  }
+  var SONGS = [
+    { id: 'bday', title: 'Joyeux anniversaire', L: 3, bpm: 70, bars: ['rh G4e G4e', 'A4q G4q C5q', 'B4h G4e G4e', 'A4q G4q D5q', 'C5h G4e G4e', 'G5q E5q C5q', 'B4q A4q F5e F5e', 'E5q C5q D5q', 'C5h.'] },
+    { id: 'lune', title: 'Au clair de la lune (début)', L: 4, bpm: 80, bars: ['C4q C4q C4q D4q', 'E4h D4h', 'C4q E4q D4q D4q', 'C4w'] },
+    { id: 'jacques', title: 'Frère Jacques (début)', L: 4, bpm: 90, bars: ['C4q D4q E4q C4q', 'C4q D4q E4q C4q', 'E4q F4q G4h', 'E4q F4q G4h', 'G4e A4e G4e F4e E4q C4q', 'G4e A4e G4e F4e E4q C4q'] },
+    { id: 'ode', title: 'Ode à la joie', L: 4, bpm: 90, bars: ['E4q E4q F4q G4q', 'G4q F4q E4q D4q', 'C4q C4q D4q E4q', 'E4q. D4e D4h', 'E4q E4q F4q G4q', 'G4q F4q E4q D4q', 'C4q C4q D4q E4q', 'D4q. C4e C4h'] },
+    { id: 'twinkle', title: 'Ah ! vous dirai-je, maman', L: 4, bpm: 90, bars: ['C4q C4q G4q G4q', 'A4q A4q G4h', 'F4q F4q E4q E4q', 'D4q D4q C4h', 'G4q G4q F4q F4q', 'E4q E4q D4h', 'G4q G4q F4q F4q', 'E4q E4q D4h', 'C4q C4q G4q G4q', 'A4q A4q G4h', 'F4q F4q E4q E4q', 'D4q D4q C4h'] },
+    { id: 'mary', title: 'Mary avait un petit agneau', L: 4, bpm: 90, bars: ['E4q D4q C4q D4q', 'E4q E4q E4h', 'D4q D4q D4h', 'E4q G4q G4h', 'E4q D4q C4q D4q', 'E4q E4q E4q E4q', 'D4q D4q E4q D4q', 'C4w'] }
+  ];
+  function rhSong() { for (var i = 0; i < SONGS.length; i++) if (SONGS[i].id === rh.song) return SONGS[i]; return SONGS[0]; }
+  function songPer() { return rh.sbars === 1 ? 1 : 2; }
+  function songKey(S) { return S.id + ':' + songPer(); }
+  function songPhrases(S) { return Math.ceil(S.bars.length / songPer()); }
+  function songDone(S) { var a = rh.songs[songKey(S)] || [], n = 0; for (var i = 0; i < songPhrases(S); i++) if (a[i]) n++; return n; }
+  function songEvents(S, from, n) {
+    var ev = [], i, b;
+    for (b = 0; b < n; b++) {
+      var t = b * S.L;
+      S.bars[from + b].split(' ').forEach(function (tok) {
+        var m = /^([A-G])(\d)([whqe])(\.?)$/.exec(tok), r = /^r([whqe])$/.exec(tok), v = m ? m[3] : r[1], d = { w: 4, h: 2, q: 1, e: .5 }[v] * (m && m[4] ? 1.5 : 1), e = { t: t, d: d, v: v, n: m ? 1 : 0 };
+        if (m) { var step = 'CDEFGAB'.indexOf(m[1]); e.p = (+m[2]) * 7 + step - 30; e.pc = SEMI[step]; e.oct = +m[2]; if (m[4]) e.dot = 1; }
+        ev.push(e); t += d;
+      });
+    }
+    var g = 0;
+    for (i = 0; i < ev.length - 1; i++) if (ev[i].v === 'e' && ev[i].n && ev[i + 1].v === 'e' && ev[i + 1].n && ev[i].t % 1 === 0 && !ev[i].g) { g++; ev[i].g = ev[i + 1].g = g; }
+    return ev;
+  }
+  function rhGenSong() {
+    var S = rhSong(), per = songPer(), ph = songPhrases(S);
+    if (rh.full) return { L: S.L, bars: S.bars.length, total: S.L * S.bars.length, ev: songEvents(S, 0, S.bars.length), piano: true, song: true, full: true, wb: per * S.L, win: 0, phraseNo: 1, phrases: ph };
+    var idx = ((rh.phrase % ph) + ph) % ph, n = Math.min(per, S.bars.length - idx * per);
+    rh.phrase = idx;
+    return { L: S.L, bars: n, total: S.L * n, ev: songEvents(S, idx * per, n), piano: true, song: true, phraseNo: idx + 1, phrases: ph };
+  }
+  function rhGen() {
+    if (smode) return rhGenSong();
+    var L = RH_BEATS[rh.meter] || 4, q, tries = 0, sig;
+    do {
+      var ev = [], grp = { n: 0 };
+      for (var b = 0; b < rh.bars; b++) rhGenBar(L, b * L, ev, grp);
+      q = { L: L, bars: rh.bars, total: L * rh.bars, ev: ev, piano: rhPiano() };
+      rhPitches(ev);
+      sig = ev.map(function (e) { return e.t + e.v + e.n + (e.dot ? '.' : ''); }).join();
+      tries++;
+    } while (tries < 30 && (ev.filter(function (e) { return e.n; }).length < 2 || sig === rhLastSig));
+    rhLastSig = sig;
+    return q;
+  }
+  function rhX(t) { return rq.x0 + (t - (rq.w0 || 0)) * rq.sc; }
+  function rhY(e) { return rq.piano ? 80 - 5 * e.p : 60; }
+  var BT = {
+    2: { p: [[50, 86], [50, 28]], c: [[70, 72], [30, 52]] },
+    3: { p: [[50, 86], [82, 58], [50, 14]], c: [[76, 90], [86, 28], [50, 50]] },
+    4: { p: [[50, 86], [18, 60], [82, 60], [50, 14]], c: [[26, 88], [50, 46], [86, 22], [50, 52]] }
+  };
+  function rhBattueDraw() {
+    var b = BT[rq.L], el = $('battue'), d = 'M' + b.p[0][0] + ' ' + b.p[0][1], h = '', i;
+    for (i = 0; i < rq.L; i++) { var n = b.p[(i + 1) % rq.L]; d += ' Q' + b.c[i][0] + ' ' + b.c[i][1] + ' ' + n[0] + ' ' + n[1]; }
+    h += '<path class="bt-path" d="' + d + '"/>';
+    for (i = 0; i < rq.L; i++) h += '<circle class="bt-dot" id="btd' + i + '" cx="' + b.p[i][0] + '" cy="' + b.p[i][1] + '" r="4.5"/><text class="bt-num" x="' + (b.p[i][0] + (i === 1 && rq.L > 2 ? (rq.L === 3 ? 12 : -11) : i === 2 ? 11 : 0)) + '" y="' + (b.p[i][1] + (i === 0 ? 15 : i === rq.L - 1 && rq.L > 2 ? -9 : 4)) + '">' + (i + 1) + '</text>';
+    h += '<circle class="bt-tip" id="btip" cx="' + b.p[0][0] + '" cy="' + b.p[0][1] + '" r="7"/>';
+    el.innerHTML = h; if (rh.beat) el.removeAttribute('hidden'); else el.setAttribute('hidden', '');
+  }
+  function rhBattue(pos) {
+    if (!rh.beat || !rq) return;
+    var b = BT[rq.L], L = rq.L, tip = $('btip'); if (!tip) return;
+    pos = Math.max(0, pos);
+    var i = Math.floor(pos) % L, u = pos - Math.floor(pos), e = u * u * (3 - 2 * u), a = b.p[i], c = b.c[i], z = b.p[(i + 1) % L], k, x, y;
+    x = (1 - e) * (1 - e) * a[0] + 2 * (1 - e) * e * c[0] + e * e * z[0];
+    y = (1 - e) * (1 - e) * a[1] + 2 * (1 - e) * e * c[1] + e * e * z[1];
+    tip.setAttribute('cx', x); tip.setAttribute('cy', y);
+    for (k = 0; k < L; k++) { var dt = $('btd' + k); if (dt) dt.setAttribute('class', 'bt-dot' + (k === i && u < 0.3 ? ' on' : '')); }
+  }
+  function rhRender(res, pvWin) {
+    var isPv = pvWin !== undefined, q = rq, pn = q.piano, W = pn ? 400 : 360, x0 = pn ? 86 : 56, x1 = pn ? 386 : 336;
+    var wb = q.wb || q.total, w0 = (isPv ? pvWin : (q.win || 0)) * wb, wt = Math.min(wb, q.total - w0), nb = Math.ceil(wt / q.L - 1e-6), lastWin = w0 + wt >= q.total - 1e-6;
+    q.x0 = x0; q.w0 = w0; q.sc = (x1 - x0 - 12) / wt;
+    if (!isPv) {
+      var nxt = (q.win || 0) + 1, hasNext = q.wb && nxt * q.wb < q.total - 1e-6 && !res;
+      $('rstage').classList.toggle('full', !!q.wb);
+      if (hasNext) rhRender(null, nxt); else $('rboard2').setAttribute('hidden', '');
+      q.x0 = x0; q.w0 = w0; q.sc = (x1 - x0 - 12) / wt;
+    }
+    var evs = q.ev.filter(function (e) { return e.t >= w0 - 1e-6 && e.t < w0 + wt - 1e-6; });
+    var tgt = $(isPv ? 'rboard2' : 'rboard');
+    if (!isPv) tgt.setAttribute('viewBox', '0 0 ' + W + ' 130');
+    var s = '', i, y = [40, 50, 60, 70, 80];
+    y.forEach(function (v) { s += '<line class="rstaff" x1="10" x2="' + (x1 + 2) + '" y1="' + v + '" y2="' + v + '"/>'; });
+    s += '<line class="rbar" x1="10" x2="10" y1="40" y2="80" stroke-width="1.6"/>';
+    for (i = 1; i < nb; i++) { var bx = rhX(w0 + i * q.L) - 8.5; s += '<line class="rbar" x1="' + bx + '" x2="' + bx + '" y1="40" y2="80" stroke-width="1.4"/>'; }
+    s += lastWin ? '<line class="rbar" x1="' + (x1 - 5) + '" x2="' + (x1 - 5) + '" y1="40" y2="80" stroke-width="1.4"/><line class="rbar" x1="' + x1 + '" x2="' + x1 + '" y1="40" y2="80" stroke-width="4"/>' : '<line class="rbar" x1="' + x1 + '" x2="' + x1 + '" y1="40" y2="80" stroke-width="1.4"/>';
+    if (pn) s += '<g transform="translate(14 60) scale(.714)"><path class="clef" d="M16 -36 C19 -50 30 -52 29 -39 C28 -26 10 -16 4 -3 C-3 12 6 24 17 21 C27 18 26 3 14 1 C6 0 4 11 11 13 M16 -36 L12 35 C11 46 -2 47 -1 39" stroke-width="3.6"/></g>';
+    var tx = pn ? 56 : 30, fam = 'font-family="var(--font-display),sans-serif" font-weight="700" font-size="23" text-anchor="middle" fill="var(--ink)"';
+    s += '<text x="' + tx + '" y="59" ' + fam + '>' + q.L + '</text><text x="' + tx + '" y="79" ' + fam + '>4</text>';
+    // beam groups
+    var groups = {};
+    evs.forEach(function (e) {
+      if (e.n && e.g) { var G = groups[e.g] = groups[e.g] || { xs: [], ys: [], ps: [], res: '' }; G.xs.push(rhX(e.t)); G.ys.push(rhY(e)); G.ps.push(e.p); if (res && e.res) G.res = e.res; }
+    });
+    Object.keys(groups).forEach(function (g) {
+      var G = groups[g]; G.down = pn && (G.ps[0] + G.ps[1]) / 2 >= 4;
+      G.end = G.down ? Math.max.apply(null, G.ys) + 31 : Math.min.apply(null, G.ys) - 31;
+    });
+    evs.forEach(function (e) {
+      var x = rhX(e.t), cy = rhY(e), cls = 'ev' + (res && e.res ? ' ' + e.res : '');
+      s += '<g class="' + cls + '">';
+      if (e.n) {
+        var G = e.g ? groups[e.g] : null, down = G ? G.down : (pn && e.p >= 4);
+        if (pn) {
+          var lp;
+          for (lp = -2; lp >= e.p; lp -= 2) s += '<line x1="' + (x - 9) + '" x2="' + (x + 9) + '" y1="' + (80 - 5 * lp) + '" y2="' + (80 - 5 * lp) + '" stroke="currentColor" stroke-width="1.3"/>';
+          for (lp = 10; lp <= e.p; lp += 2) s += '<line x1="' + (x - 9) + '" x2="' + (x + 9) + '" y1="' + (80 - 5 * lp) + '" y2="' + (80 - 5 * lp) + '" stroke="currentColor" stroke-width="1.3"/>';
+        }
+        if (e.v === 'w') s += '<ellipse cx="' + x + '" cy="' + cy + '" rx="7.6" ry="5" fill="none" stroke="currentColor" stroke-width="2"/>';
+        else {
+          var open = e.v === 'h', sx = down ? x - 5.3 : x + 5.3, end = G ? G.end : (down ? cy + 31 : cy - 31);
+          s += '<ellipse cx="' + x + '" cy="' + cy + '" rx="6" ry="4.4" transform="rotate(-20 ' + x + ' ' + cy + ')" ' + (open ? 'fill="none" stroke="currentColor" stroke-width="1.9"' : 'fill="currentColor"') + '/>';
+          s += '<line x1="' + sx + '" x2="' + sx + '" y1="' + (down ? cy + 2 : cy - 2) + '" y2="' + end + '" stroke="currentColor" stroke-width="1.7"/>';
+          if (e.v === 'e' && !G) s += '<path transform="translate(' + sx + ' ' + end + ') scale(1 ' + (down ? -1 : 1) + ')" d="M0 0 C1 11 9 13 7 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>';
+        }
+        if (pn && rh.names) s += '<text class="rname" x="' + x + '" y="102">' + PCN[e.pc] + '</text>';
+        if (e.dot) s += '<circle cx="' + (x + 12) + '" cy="' + (pn && e.p % 2 !== 0 ? cy : cy - 5) + '" r="1.9" fill="currentColor"/>';
+      } else {
+        if (e.v === 'q') s += '<path transform="translate(' + x + ' 60)" d="M-2 -13 L3 -6 L-3 1 L3 8 C-2 7 -4 11 -1 15" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round" stroke-linecap="round"/>';
+        else if (e.v === 'h') s += '<rect x="' + (x - 7) + '" y="55" width="14" height="5" fill="currentColor"/>';
+        else s += '<g transform="translate(' + x + ' 60)"><circle cx="-3" cy="-4" r="2.3" fill="currentColor"/><path d="M-1.5 -3 Q2 -3 3 -7 L-3 10" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></g>';
+      }
+      s += '</g>';
+    });
+    Object.keys(groups).forEach(function (g) {
+      var G = groups[g], a = G.xs, sx0 = a[0] + (G.down ? -5.3 : 5.3), sx1 = a[1] + (G.down ? -5.3 : 5.3);
+      s += '<line class="ev ' + G.res + '" x1="' + (sx0 - .85) + '" x2="' + (sx1 + .85) + '" y1="' + (G.down ? G.end - 2.5 : G.end + 2.5) + '" y2="' + (G.down ? G.end - 2.5 : G.end + 2.5) + '" stroke="currentColor" stroke-width="5"/>';
+    });
+    if (isPv) { tgt.setAttribute('viewBox', '0 20 ' + W + ' 85'); tgt.innerHTML = s; tgt.removeAttribute('hidden'); return; }
+    s += '<g id="rmarks">';
+    if (res && q.taps) q.taps.forEach(function (t) { if (t.b >= w0 - 0.6 && t.b < w0 + wt + 0.6) s += rhMark(t.b, t.ok, t.pc, t.oct); });
+    s += '</g><line class="rcur" id="rcur" x1="0" x2="0" y1="22" y2="98" style="display:none"/>';
+    tgt.innerHTML = s;
+    rhBattueDraw(); rhBattue(0);
+  }
+  function rhMark(b, ok, pc, oct) {
+    var x = rhX(b);
+    return '<circle class="tapmark ' + (ok === null ? '' : ok ? 'good' : 'bad') + '" cx="' + x + '" cy="108" r="5"/>' + (pc !== undefined ? '<text class="rlab" x="' + x + '" y="125">' + PCN[pc] + (oct || '') + '</text>' : '');
+  }
+
+  function rhAudio() { try { return ensureAudio(); } catch (e) { return null; } }
+  function rhBlip(A, out, time, freq, dur, vol, type) {
+    try {
+      var o = A.createOscillator(), g = A.createGain();
+      o.type = type || 'sine'; o.frequency.value = freq;
+      g.gain.setValueAtTime(0.0001, time); g.gain.linearRampToValueAtTime(vol, time + 0.004); g.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+      o.connect(g); g.connect(out); o.start(time); o.stop(time + dur + 0.03);
+    } catch (e) {}
+  }
+  function rhPager() {
+    var nw = rq && rq.wb ? Math.ceil(rq.total / rq.wb) : 1, show = !!(rq && rq.wb && rq.done && !rrun && nw > 1);
+    $('rpager').hidden = !show; if (!show) return;
+    $('rwNum').textContent = (rq.win + 1) + '/' + nw; $('rwPrev').disabled = rq.win <= 0; $('rwNext').disabled = rq.win >= nw - 1;
+  }
+  function rhGo(d) { rq.win = Math.max(0, Math.min(rq.win + d, Math.ceil(rq.total / rq.wb) - 1)); rhRender(true); rhPager(); }
+  function rhUI() {
+    var run = !!rrun, done = !run && rq && rq.done;
+    $('rGo').textContent = run ? 'Arrêter' : done ? 'Réessayer' : 'Démarrer';
+    $('rListen').disabled = run; $('rNext').disabled = run;
+    var pn = rhPiano();
+    $('rNext').textContent = smode ? 'Suivante' : 'Suivant'; $('rNext').hidden = !!(smode && rq && rq.full);
+    rhPager();
+    $('tapPad').hidden = pn; $('rkeys').hidden = !pn;
+    $('tapPad').disabled = !(run && !rrun.demo);
+    $('tapPad').textContent = run && !rrun.demo ? 'Tape !' : run ? 'Écoute…' : 'Tape ici';
+  }
+  function rhMsg(cls, html) { var fb = $('feedback'); fb.className = 'feedback' + (cls ? ' ' + cls : ''); fb.innerHTML = html; }
+  function rhNew() {
+    rhStop(true);
+    rq = rhGen(); rq.done = false; rq.taps = null; rhBuildKeys();
+    rhRender(null);
+    rhMsg('', '<span>' + (smode ? (rq.full ? 'Morceau entier · ' + rhSong().title : 'Phrase ' + rq.phraseNo + '/' + rq.phrases + ' · ' + rhSong().title) : rhPiano() ? 'Lis la mélodie, puis joue-la sur les touches.' : 'Lis le rythme, puis appuie sur Démarrer.') + '<small>' + (rq.full ? rhSong().bars.length + ' mesures · ' : '') + rq.L + '/4 · ' + rh.bpm + ' à la noire · compte ' + rq.L + ' temps avant de jouer</small></span>');
+    rhUI();
+  }
+  function rhStop(silent) {
+    if (!rrun) return;
+    cancelAnimationFrame(rrun.raf);
+    try { rrun.out.gain.value = 0; rrun.out.disconnect(); } catch (e) {}
+    rrun = null; $('rcount').textContent = '';
+    if (rq) { rhRender(null); if (!silent) rhMsg('', '<span>Arrêté. Appuie sur Démarrer pour recommencer.</span>'); }
+    rhUI();
+  }
+  function rhStart(demo) {
+    if (rrun || !rq) return;
+    var A = rhAudio(), beat = 60000 / rh.bpm, L = rq.L, p0 = performance.now() + 160, a0 = A ? A.currentTime + 0.16 : 0;
+    rq.ev.forEach(function (e) { delete e.res; }); rq.taps = null; rq.done = false; rq.win = 0;
+    rhRender(null);
+    rrun = { demo: demo, beat: beat, p0: p0, start: p0 + L * beat, taps: [], raf: 0, out: null };
+    if (A) {
+      rrun.out = A.createGain(); rrun.out.connect(A.destination);
+      for (var i = 0; i < L + rq.total; i++) rhBlip(A, rrun.out, a0 + i * beat / 1000, i % L === 0 ? 1500 : 1000, 0.05, 0.22, 'square');
+      if (demo) rq.ev.forEach(function (e) { if (e.n) rhBlip(A, rrun.out, a0 + (L + e.t) * beat / 1000, rq.piano ? 440 * Math.pow(2, (12 * (Math.floor((30 + e.p) / 7) + 1) + e.pc - 69) / 12) : 392, Math.min(.6, e.d * beat / 1000), 0.5, 'triangle'); });
+    }
+    rhMsg('', demo ? '<span>Écoute…</span>' : '<span>Compte, puis ' + (rq.piano ? 'joue la mélodie.' : 'tape le rythme.') + '</span>');
+    rhUI();
+    if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+    rrun.raf = requestAnimationFrame(rhFrame);
+  }
+  function rhFrame() {
+    var r = rrun; if (!r) return;
+    var now = performance.now(), tb = (now - r.start) / r.beat, cur = $('rcur'), L = rq.L;
+    if (rq.wb && tb >= 0) { var w = Math.min(Math.floor(tb / rq.wb), Math.ceil(rq.total / rq.wb) - 1); if (w !== rq.win) { rq.win = w; rhRender(null); cur = $('rcur'); } }
+    rhBattue((now - r.p0) / r.beat);
+    if (cur) {
+      var w0 = rq.w0 || 0, t = Math.max(w0, Math.min(tb, w0 + (rq.wb ? Math.min(rq.wb, rq.total - w0) : rq.total))), x = rhX(t);
+      cur.setAttribute('x1', x); cur.setAttribute('x2', x); cur.style.display = '';
+      cur.style.opacity = tb < 0 ? 0.35 : 0.85;
+    }
+    if (tb < 0) { var n = Math.floor((now - r.p0) / r.beat) + 1; $('rcount').textContent = n >= 1 && n <= L ? n : ''; }
+    else $('rcount').textContent = '';
+    if (tb > rq.total + 0.5) { rhFinish(); return; }
+    r.raf = requestAnimationFrame(rhFrame);
+  }
+  function rhBuildKeys() {
+    var box = $('rkeys'); if (!box || box.dataset.built) return;
+    box.dataset.built = '1'; box.classList.add('two');
+    var row = document.createElement('div'); row.className = 'wrow'; box.appendChild(row);
+    [4, 5].forEach(function (oct, o) {
+      SEMI.forEach(function (pc, i) {
+        var b = document.createElement('button'); b.type = 'button'; b.className = 'wk'; b.dataset.pc = pc; b.dataset.oct = oct; b.setAttribute('aria-label', PCN[pc] + ' ' + oct);
+        b.textContent = NAMES_FR[i] + (i === 0 ? oct : '');
+        b.addEventListener('pointerdown', function (e) { e.preventDefault(); rhTap(pc, b, oct); });
+        row.appendChild(b);
+      });
+      [[0, 1], [1, 3], [3, 6], [4, 8], [5, 10]].forEach(function (t) {
+        var k = document.createElement('button'); k.type = 'button'; k.className = 'bk'; k.dataset.pc = t[1]; k.dataset.oct = oct; k.setAttribute('aria-label', PCN[t[1]] + ' ' + oct);
+        k.style.left = ((o * 7 + t[0] + 1) * 100 / 14) + '%';
+        k.addEventListener('pointerdown', function (e) { e.preventDefault(); rhTap(t[1], k, oct); });
+        box.appendChild(k);
+      });
+    });
+  }
+  function rhPlayPc(pc, oct) {
+    var i = SEMI.indexOf(pc), a = 0;
+    if (i < 0) { i = SEMI.indexOf(pc - 1); a = 1; }
+    play([{ d: (oct || 4) * 7 + i, step: i, alter: a }]);
+  }
+  function rhTap(pc, keyEl, oct) {
+    var piano = rhPiano();
+    if (keyEl) { keyEl.classList.add('sel'); setTimeout(function () { keyEl.classList.remove('sel'); }, 130); }
+    else { var pad = $('tapPad'); pad.classList.add('hit'); setTimeout(function () { pad.classList.remove('hit'); }, 90); }
+    var r = rrun, now = performance.now();
+    if (piano) { if (rh.tapSound) rhPlayPc(pc, oct); }
+    if (!r || r.demo) return;
+    if (!piano && rh.tapSound && audio) rhBlip(audio, audio.destination, audio.currentTime, 700, 0.06, 0.45, 'triangle');
+    if (now < r.start - r.beat * 0.5) return;
+    var tb = (now - r.start) / r.beat;
+    r.taps.push({ b: tb, pc: piano ? pc : undefined, oct: oct });
+    var m = $('rmarks'); if (m && tb >= (rq.w0 || 0) - 0.6 && tb < (rq.w0 || 0) + (rq.wb || rq.total) + 0.6) m.insertAdjacentHTML('beforeend', rhMark(tb, null, piano ? pc : undefined, oct));
+  }
+  function rhFinish() {
+    var r = rrun; cancelAnimationFrame(r.raf);
+    try { r.out && r.out.disconnect(); } catch (e) {}
+    rrun = null; $('rcount').textContent = '';
+    if (r.demo) { rhRender(null); rhMsg('', '<span>À toi de jouer : appuie sur Démarrer.</span>'); rhUI(); return; }
+    var tolMs = Math.max(110, Math.min(180, r.beat * 0.28)), tol = tolMs / r.beat, used = {}, offs = [], missed = 0, wrong = 0, octWrong = 0, piano = rq.piano;
+    rq.ev.forEach(function (e) {
+      if (!e.n) return;
+      var best = -1, bd = 1e9;
+      r.taps.forEach(function (t, j) { if (used[j]) return; var d = Math.abs(t.b - e.t); if (d < bd) { bd = d; best = j; } });
+      if (best >= 0 && bd <= tol) {
+        used[best] = 1; offs.push((r.taps[best].b - e.t) * r.beat);
+        if (piano && (r.taps[best].pc !== e.pc || r.taps[best].oct !== e.oct)) { e.res = 'bad'; if (r.taps[best].pc === e.pc) octWrong++; else wrong++; r.taps[best].wrong = true; } else e.res = 'good';
+      } else { e.res = 'bad'; missed++; }
+    });
+    rq.taps = r.taps.map(function (t, j) { return { b: t.b, pc: t.pc, oct: t.oct, ok: !!used[j] && !t.wrong }; });
+    var extra = rq.taps.filter(function (t, j) { return !used[j]; }).length, ok = missed === 0 && extra === 0 && wrong === 0 && octWrong === 0;
+    rq.done = true;
+    rh.total++; if (ok) { rh.ok++; rh.streak++; if (rh.streak > rh.best) rh.best = rh.streak; } else rh.streak = 0;
+    var goodN = 0, noteN = 0, badWin = {};
+    rq.ev.forEach(function (e) { if (!e.n) return; noteN++; if (e.res === 'good') goodN++; else badWin[Math.floor(e.t / (rq.wb || rq.total))] = 1; });
+    rq.taps.forEach(function (t, j) { if (!used[j]) badWin[Math.max(0, Math.min(Math.floor(t.b / (rq.wb || rq.total)), 99))] = 1; });
+    var badList = Object.keys(badWin).map(Number).sort(function (a, b) { return a - b; });
+    if (smode && ok) {
+      var sk = songKey(rhSong()); rh.songs[sk] = rh.songs[sk] || [];
+      if (rq.full) for (var pi = 0; pi < rq.phrases; pi++) rh.songs[sk][pi] = 1; else rh.songs[sk][rq.phraseNo - 1] = 1;
+    }
+    if (smode && rq.full) { var fk = rhSong().id + ':full', pct = noteN ? Math.round(100 * goodN / noteN) : 0; if (!rh.songs[fk] || pct > rh.songs[fk]) rh.songs[fk] = pct; rq.pct = pct; }
+    if (rq.wb) rq.win = badList.length ? Math.min(badList[0], Math.ceil(rq.total / rq.wb) - 1) : 0;
+    rhSave(); stats();
+    rhRender(true);
+    var mean = offs.length ? offs.reduce(function (a, b) { return a + b; }, 0) / offs.length : 0, tip;
+    if (!offs.length) tip = '';
+    else if (Math.abs(mean) < 35) tip = 'pile dans le tempo';
+    else tip = 'plutôt ' + (mean < 0 ? 'en avance' : 'en retard') + ' de ' + Math.round(Math.abs(mean)) + ' ms';
+    if (rq.full) {
+      if (ok) rhMsg('good', '<span><strong>Morceau réussi !</strong><small>100 % · ' + tip + '</small></span>');
+      else rhMsg('bad', '<span><strong>' + rq.pct + ' % de notes justes</strong><small>À revoir : écran' + (badList.length > 1 ? 's ' : ' ') + badList.map(function (w) { return w + 1; }).join(', ') + ' (flèches en haut à droite)</small></span>');
+    }
+    else if (ok) rhMsg('good', '<span><strong>' + (smode && rq.phraseNo === rq.phrases ? 'Juste ! Morceau terminé' : 'Juste !') + '</strong><small>' + tip + '</small></span>');
+    else {
+      var parts = [];
+      if (octWrong) parts.push(octWrong + ' note' + (octWrong > 1 ? 's' : '') + ' dans la mauvaise octave');
+      if (wrong) parts.push(wrong + ' mauvaise' + (wrong > 1 ? 's' : '') + ' note' + (wrong > 1 ? 's' : ''));
+      if (missed) parts.push(missed + ' note' + (missed > 1 ? 's' : '') + ' manquée' + (missed > 1 ? 's' : ''));
+      if (extra) parts.push(extra + ' tap' + (extra > 1 ? 's' : '') + ' en trop');
+      rhMsg('bad', '<span><strong>À refaire</strong><small>' + parts.join(' · ') + (tip ? ' · ' + tip : '') + '</small></span>');
+    }
+    rhUI();
+  }
+
+  function rhPresetMatch(p) { var c = p.cfg; return sameSet(rh.vals, c.vals) && rh.rests === c.rests && rh.dots === c.dots && rh.bars === c.bars; }
+  function rhChanged() { rhSave(); buildSettings(); rhNew(); }
+  function rhBuildSettings() {
+    var pr = $('rPresets'), active = null; pr.innerHTML = '';
+    RH_PRESETS.forEach(function (p) {
+      var on = rhPresetMatch(p), b = document.createElement('button');
+      if (on) active = p;
+      b.type = 'button'; b.className = 'chip'; b.textContent = p.label; b.setAttribute('aria-pressed', on);
+      b.addEventListener('click', function () { rh.vals = p.cfg.vals.slice(); rh.rests = p.cfg.rests; rh.dots = p.cfg.dots; rh.bars = p.cfg.bars; rh.bpm = p.cfg.bpm; rhChanged(); });
+      pr.appendChild(b);
+    });
+    $('rPresetHint').textContent = active ? active.hint : 'Réglages personnalisés.';
+    seg($('rMeter'), [['2/4', '2/4'], ['3/4', '3/4'], ['4/4', '4/4']], rh.meter, function (v) { rh.meter = v; rhChanged(); });
+    seg($('rBars'), [[1, '1 mesure'], [2, '2 mesures']], smode ? rh.sbars : rh.bars, function (v) { if (smode) { rh.sbars = v; rh.phrase = 0; } else rh.bars = v; rhChanged(); });
+    var vb = $('rVals'); vb.innerHTML = '';
+    RH_VALS.forEach(function (m) {
+      var on = rh.vals.indexOf(m[0]) >= 0, b = document.createElement('button');
+      b.type = 'button'; b.className = 'chip'; b.textContent = m[1]; b.setAttribute('aria-pressed', on);
+      b.addEventListener('click', function () {
+        var i = rh.vals.indexOf(m[0]);
+        if (i >= 0) { if (rh.vals.length > 1) rh.vals.splice(i, 1); } else rh.vals.push(m[0]);
+        rhChanged();
+      });
+      vb.appendChild(b);
+    });
+    [].forEach.call(document.querySelectorAll('#pan-rx [data-gen]'), function (el) { el.hidden = smode; });
+    $('rSongGroup').hidden = !smode; $('rWorkGroup').hidden = !smode; $('rNames').checked = rh.names;
+    $('rBarsLabel').textContent = smode ? (rh.full ? 'Mesures par écran' : 'Mesures par phrase') : 'Longueur';
+    seg($('rWork'), [['phr', 'Par phrases'], ['full', 'Morceau entier']], rh.full ? 'full' : 'phr', function (v) { rh.full = v === 'full'; rh.phrase = 0; rhChanged(); });
+    if (smode) seg($('rSong'), SONGS.map(function (S) { return [S.id, S.title]; }), rh.song, function (v) { rhPick(v); });
+    seg($('rKind'), [['tap', 'Taper le rythme'], ['piano', 'Jouer au piano']], rh.kind, function (v) { rh.kind = v; rhChanged(); });
+    if (!smode) $('rRangeGroup').hidden = rh.kind !== 'piano';
+    seg($('rRange'), [['a', 'Do – Sol'], ['b', 'Octave Do – Do'], ['c', 'Mi – Sol aigu']], rh.range, function (v) { rh.range = v; rhChanged(); });
+    $('rBeat').checked = rh.beat;
+    $('rBpm').value = rh.bpm; $('rBpmVal').textContent = rh.bpm + ' / min';
+    $('rRests').checked = rh.rests; $('rDots').checked = rh.dots; $('rTap').checked = rh.tapSound;
+  }
+  $('rBpm').addEventListener('input', function (e) { rh.bpm = +e.target.value; $('rBpmVal').textContent = rh.bpm + ' / min'; rhSave(); });
+  $('rBpm').addEventListener('change', function () { rhChanged(); });
+  $('rRests').addEventListener('change', function (e) { rh.rests = e.target.checked; rhChanged(); });
+  $('rDots').addEventListener('change', function (e) { rh.dots = e.target.checked; rhChanged(); });
+  $('rBeat').addEventListener('change', function (e) { rh.beat = e.target.checked; rhSave(); if (rh.beat) $('battue').removeAttribute('hidden'); else $('battue').setAttribute('hidden', ''); });
+  $('rNames').addEventListener('change', function (e) { rh.names = e.target.checked; rhSave(); if (rq && !rrun) rhRender(rq.done ? true : null); });
+  $('rTap').addEventListener('change', function (e) { rh.tapSound = e.target.checked; rhSave(); });
+  $('rGo').addEventListener('click', function () { if (rrun) { rhStop(); } else rhStart(false); });
+  $('rListen').addEventListener('click', function () { rhStart(true); });
+  $('rwPrev').addEventListener('click', function () { rhGo(-1); });
+  $('rwNext').addEventListener('click', function () { rhGo(1); });
+  $('rNext').addEventListener('click', function () { if (smode) { rh.phrase++; rhSave(); } rhNew(); });
+  $('tapPad').addEventListener('pointerdown', function (e) { e.preventDefault(); rhTap(); });
+  document.addEventListener('visibilitychange', function () { if (document.hidden && rmode) rhStop(); });
+
+  function rhPick(id) {
+    var S; for (var i = 0; i < SONGS.length; i++) if (SONGS[i].id === id) S = SONGS[i];
+    rh.song = id; rh.phrase = 0; rh.bpm = S.bpm; rhSave();
+    $('songs').hidden = true; buildSettings(); rhNew();
+  }
+  function buildSongList() {
+    seg($('songWork'), [['phr', 'Par phrases'], ['full', 'Morceau entier']], rh.full ? 'full' : 'phr', function (v) { rh.full = v === 'full'; rh.phrase = 0; rhSave(); buildSongList(); });
+    var box = $('songList'); box.innerHTML = '';
+    SONGS.forEach(function (S) {
+      var b = document.createElement('button'), n = songPhrases(S), d = songDone(S);
+      b.type = 'button'; b.className = 'mode-card';
+      b.innerHTML = '<span class="mi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5" fill="currentColor" stroke="none"/><circle cx="17.5" cy="16" r="2.5" fill="currentColor" stroke="none"/></svg></span><span><b></b><span class="d">' + S.L + '/4 · ' + S.bars.length + ' mesures</span><span class="prog">' + d + '/' + n + ' phrases réussies' + (rh.songs[S.id + ':full'] ? ' · entier : ' + rh.songs[S.id + ':full'] + ' %' : '') + '</span></span>';
+      b.querySelector('b').textContent = S.title;
+      b.addEventListener('click', function () { rhPick(S.id); });
+      box.appendChild(b);
+    });
+  }
+  $('songsBack').addEventListener('click', function () { $('songs').hidden = true; showHome(); });
+  function showHome() {
+    $('songs').hidden = true;
+    if (rmode) rhStop();
+    if (mic.on) micStop();
+    clearTimeout(timer); resetRun();
+    $('home').hidden = false; app.setAttribute('inert', '');
+  }
+  function enterMode(m) {
+    rmode = m === 'rhythm' || m === 'songs'; smode = m === 'songs';
+    if (!rmode) {
+      st.ear = m === 'ear';
+      if (st.ear && st.answer === 'mic') st.answer = 'names';
+    }
+    $('home').hidden = true; app.removeAttribute('inert');
+    $('stage').hidden = rmode; $('rstage').hidden = !rmode; keysEl.hidden = rmode; $('rpad').hidden = !rmode;
+    if (rmode) { clearTimeout(timer); $('gameBar').hidden = true; $('gameCard').hidden = true; buildSettings(); stats(); rhNew(); if (smode) { buildSongList(); $('songs').hidden = false; } }
+    else { save(); refresh(); }
+  }
+  $('homeBtn').addEventListener('click', showHome);
+  Array.prototype.forEach.call(document.querySelectorAll('[data-mode]'), function (b) {
+    b.addEventListener('click', function () { if (!b.disabled) enterMode(b.dataset.mode); });
+  });
+  buildSettings(); buildKeys(); stats(); next(); showHome();
 })();
+</script>
+<script>
+if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+  window.addEventListener('load', function () {
+    navigator.serviceWorker.register('sw.js').then(function () { return navigator.serviceWorker.ready; }).then(function () {
+      var n = document.getElementById('offlineNote'); if (n) n.hidden = false;
+    }).catch(function () {});
+  });
+}
 </script>
 </body>
 </html>
