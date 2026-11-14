@@ -160,8 +160,8 @@ button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); ou
 .sessbar button { flex: none; background: none; border: 0; color: var(--muted); font: inherit; font-weight: 600; padding: 6px 8px; cursor: pointer; }
 .step { display: flex; align-items: center; gap: 14px; background: var(--panel); border: 1px solid var(--line); border-radius: 16px; padding: 12px 14px; }
 .step .num { flex: none; width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; font-weight: 700; font-family: var(--font-display); }
-.step.done .num { background: var(--good); }
-.step.next { border-color: var(--accent); }
+.step.s-done .num { background: var(--good); }
+.step.s-next { border-color: var(--accent); }
 .step b { display: block; font-size: 16px; }
 .step small { display: block; color: var(--muted); font-size: 13px; margin-top: 1px; }
 .step .res { margin-left: auto; flex: none; font-weight: 700; font-variant-numeric: tabular-nums; }
@@ -1908,7 +1908,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
   function sessShow(html) { $('sessIn').innerHTML = html; $('sess').hidden = false; $('sess').scrollTop = 0; }
   function stepHtml(S, i, cls, res) {
     var inf = STEP_INFO[S.type], title = S.type === 'songs' ? 'Morceau' : inf.label;
-    return '<div class="step ' + (cls || '') + '"><span class="num">' + (cls === 'done' ? '✓' : i + 1) + '</span><div><b>' + title + '</b><small>' + S.n + ' ' + inf.unit + ' · ' + S.why + '</small></div>' + (res ? '<span class="res">' + res + '</span>' : '') + '</div>';
+    return '<div class="step ' + (cls || '') + '"><span class="num">' + (cls === 's-done' ? '✓' : i + 1) + '</span><div><b>' + title + '</b><small>' + S.n + ' ' + inf.unit + ' · ' + S.why + '</small></div>' + (res ? '<span class="res">' + res + '</span>' : '') + '</div>';
   }
   function sessIntro() {
     sess.steps = sessPlan(); sess.view = 'intro';
@@ -1962,9 +1962,9 @@ button.bk:active:not(:disabled) { background: var(--accent); }
   }
   function resTxt(r) { return r.ok + '/' + r.n; }
   function sessBetween() {
-    var done = sess.results.map(function (r, i) { return stepHtml(r.S, i, 'done', resTxt(r)); }).join(''), nx = sess.steps[sess.i];
+    var done = sess.results.map(function (r, i) { return stepHtml(r.S, i, 's-done', resTxt(r)); }).join(''), nx = sess.steps[sess.i];
     sess.view = 'between';
-    sessShow('<h1>Étape ' + sess.i + ' terminée</h1><p class="lead" style="margin-bottom:4px">Prochaine étape :</p>' + stepHtml(nx, sess.i, 'next') +
+    sessShow('<h1>Étape ' + sess.i + ' terminée</h1><p class="lead" style="margin-bottom:4px">Prochaine étape :</p>' + stepHtml(nx, sess.i, 's-next') +
       '<div class="sess-actions"><button class="sbtn" id="sessNext" type="button">Continuer</button><button class="link" id="sessStop" type="button">Arrêter la séance</button></div>' +
       '<p class="lead" style="margin:10px 0 0">Déjà fait</p>' + done);
     $('sessNext').addEventListener('click', sessStartStep);
@@ -1979,7 +1979,7 @@ button.bk:active:not(:disabled) { background: var(--accent); }
     sess.view = 'final';
     var n = 0, d = new Date(); while (dayReached(d) && n < 400) { n++; d.setDate(d.getDate() - 1); }
     sessShow('<h1>Séance terminée !</h1><p class="big-stat">' + (tot ? Math.round(100 * ok / tot) : 0) + ' %</p><p class="lead" style="margin:0 0 4px">' + ok + ' réussites sur ' + tot + (n ? ' · série de ' + n + ' jour' + (n > 1 ? 's' : '') : '') + '</p>' +
-      sess.results.map(function (r, i) { return stepHtml(r.S, i, 'done', resTxt(r)); }).join('') +
+      sess.results.map(function (r, i) { return stepHtml(r.S, i, 's-done', resTxt(r)); }).join('') +
       (weakest && weakest.ok / Math.max(1, weakest.n) < 0.8 ? '<p class="lead" style="margin:6px 0 0">À retravailler demain : ' + (weakest.S.type === 'songs' ? 'les morceaux' : STEP_INFO[weakest.S.type].label.toLowerCase()) + '.</p>' : '') +
       '<div class="sess-actions"><button class="sbtn" id="sessEnd" type="button">Terminer</button></div>');
     $('sessEnd').addEventListener('click', function () { sessEnd(); });
